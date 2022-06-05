@@ -246,6 +246,7 @@ int main(int argc, char *argv[])
 
   std::cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock(); //ここまで時間測定
+  std::cout << "search_limit:" << search_limit;
   std::cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
   return 0;
 }
