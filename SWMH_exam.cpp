@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
   vector<int> database;                 //データベース
   char *dbname = argv[1];               // database.txt
   database = readdatabase_line(dbname); //データベース作成
-  std::cout << database.size() << endl;
+  // std::cout << database.size() << endl;
 
   /*パラメータ*/
   int w = atoi(argv[2]); //ウインドウサイズ
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
   int multi = atoi(argv[4]);        // wの中の要素の数の上限
   int vm = vmw / multi;             //要素の種類数
 
-  int search_limit = atoi(argv[5]); //delete_val探索時の探索回数
+  int search_limit = atoi(argv[5]); // delete_val探索時の探索回数
 
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
   /*残っている要素のリストとスライディングウインドウに含まれている数のヒストグラムの作成*/
 
   vector<vector<contents>> Minlist(num_of_hash); //残っている要素のリスト[ハッシュ関数][残ってる要素]
-  vector<deque<int>> histgram(vm);                 //要素数0,初期値0
+  vector<deque<int>> histgram(vm);               //要素数0,初期値0
 
   vector<int> reset_count(num_of_hash, 0);
 
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-          while (Minlist[l][m].time < search_limit)
+          while (Minlist[l][m].time < hist_time)
           {
             //時刻によって判断
             back_IN_num++;
@@ -192,6 +192,10 @@ int main(int argc, char *argv[])
             {
               //ヒストグラムの先頭まで行った
               hist_time = -1;
+            }
+            if (back_IN_num >= search_limit)
+            {
+              break;
             }
           }
           if (Minlist[l][m].value >= delete_val)
@@ -242,11 +246,12 @@ int main(int argc, char *argv[])
   }
 
   ave_length = sum_time_ave_length / t;
-  std::cout << ave_length << "\n";
+  // std::cout << ave_length << "\n";
 
-  std::cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
+  // std::cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock(); //ここまで時間測定
-  std::cout << "search_limit:" << search_limit;
-  std::cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  // std::cout << "search_limit:" << search_limit << "\n";
+  // std::cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  std::cout << search_limit << "," << (double)(end - start) / CLOCKS_PER_SEC << endl;
   return 0;
 }
