@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
   vector<int> database;                 //データベース
   char *dbname = argv[1];               // database.txt
   database = readdatabase_line(dbname); //データベース作成
-  // std::cout << database.size() << endl;
+  // cout << database.size() << endl;
 
   /*パラメータ*/
   int w = atoi(argv[2]); //ウインドウサイズ
@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
           }
         }
         if (min_elem[l].value != min)
-          std::cout << l << " " << min_elem[l].value << " " << min << endl;
+          cout << l << " " << min_elem[l].value << " " << min << endl;
       }
     }
 #endif
@@ -246,12 +246,12 @@ int main(int argc, char *argv[])
   }
 
   ave_length = sum_time_ave_length / t;
-  // std::cout << ave_length << "\n";
+  // cout << ave_length << "\n";
 
-  // std::cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
+  // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock(); //ここまで時間測定
-  // std::cout << "search_limit:" << search_limit << "\n";
-  // std::cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
-  std::cout << search_limit << "," << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  // cout << "search_limit:" << search_limit << "\n";
+  // cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  cout << search_limit << "           " << (double)(end - start) / CLOCKS_PER_SEC << endl;
   return 0;
 }
