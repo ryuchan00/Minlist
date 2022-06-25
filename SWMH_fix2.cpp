@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
   // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock(); //ここまで時間測定
   // cout << "search_limit:" << search_limit << "\n";
-  // cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
-  cout << search_limit << "           " << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  // cout << search_limit << "           " << (double)(end - start) / CLOCKS_PER_SEC << endl;
   return 0;
 }
