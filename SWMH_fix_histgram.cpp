@@ -11,59 +11,50 @@
 // 元データの要素をランダムに組み合わせてデータベースを作る関数                                    //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "contents.h"
 #include "kyotsu.h"
 #include "minhash.h"
-#include "contents.h"
 
-//#define DEBUG
+// #define DEBUG
 
 #define PERIOD (100000)
 using namespace std;
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   int t = 0;
 
-  vector<int> database;                 //データベース
-  char *dbname = argv[1];               // database.txt
-  database = readdatabase_line(dbname); //データベース作成
-  // cout << database.size() << endl;
+  vector<int> database;                  //データベース
+  char *dbname = argv[1];                // database.txt
+  database = readdatabase_line(dbname);  //データベース作成
 
   /*パラメータ*/
-  int w = atoi(argv[2]); //ウインドウサイズ
-  int dmax = PERIOD + w; //ストリームデータの長さ
+  int w = atoi(argv[2]);  //ウインドウサイズ
+  int dmax = PERIOD + w;  //ストリームデータの長さ
 
   vector<vector<int>> minhash;
   vector<int>::iterator it;
 
-  char *mhname = argv[3];           // Minhash.txt
-  minhash = readminhash(mhname);    //ハッシュ関数の読み込み
-  int num_of_hash = minhash.size(); //ハッシュ関数の数
-  int vmw = minhash[0].size();      //要素種類数 × 多重度の数
-  int multi = atoi(argv[4]);        // wの中の要素の数の上限
-  int vm = vmw / multi;             //要素の種類数
+  char *mhname = argv[3];            // Minhash.txt
+  minhash = readminhash(mhname);     //ハッシュ関数の読み込み
+  int num_of_hash = minhash.size();  //ハッシュ関数の数
+  int vmw = minhash[0].size();       //要素種類数 × 多重度の数
+  int multi = atoi(argv[4]);         // wの中の要素の数の上限
+  int vm = vmw / multi;              //要素の種類数
 
-  int search_limit = atoi(argv[5]); // delete_val探索時の探索回数
+  int search_limit = atoi(argv[5]);  // delete_val探索時の探索回数
 
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
 
   vector<vector<vector<int>>> fx(num_of_hash, vector<vector<int>>(vm, vector<int>(multi + 1, 5000000)));
 
-  for (int l = 0; l < num_of_hash; l++)
-  {
-    for (int i = 0; i < vm; i++)
-    {
-      for (int s = 1; s <= multi; s++)
-      {
-
-        int Allocation_s = minhash[l][i + (vm * (s - 1))]; //アルファベットに対してs番目の割り当て値
-        if (Allocation_s > fx[l][i][s - 1])
-        {
+  for (int l = 0; l < num_of_hash; l++) {
+    for (int i = 0; i < vm; i++) {
+      for (int s = 1; s <= multi; s++) {
+        int Allocation_s = minhash[l][i + (vm * (s - 1))];  //アルファベットに対してs番目の割り当て値
+        if (Allocation_s > fx[l][i][s - 1]) {
           fx[l][i][s] = fx[l][i][s - 1];
-        }
-        else
-        {
+        } else {
           fx[l][i][s] = Allocation_s;
         }
       }
@@ -73,12 +64,15 @@ int main(int argc, char *argv[])
 
   /*残っている要素のリストとスライディングウインドウに含まれている数のヒストグラムの作成*/
 
-  vector<vector<contents>> Minlist(num_of_hash); //残っている要素のリスト[ハッシュ関数][残ってる要素]
-  vector<deque<int>> histgram(vm);               //要素数0,初期値0
+  vector<vector<contents>> Minlist(num_of_hash);  //残っている要素のリスト[ハッシュ関数][残ってる要素]
+  // vector<deque<int>> histgram(vm);                //要素数0,初期値0
+  vector<int> histgram(vm);           // histgramは個数のみを持つ
+  vector<deque<int>> t_histgram(vm);  //要素数0,初期値0
+  const int t_histgram_limit = 2;
 
   vector<int> reset_count(num_of_hash, 0);
 
-  int In; //データストリームに入ってくる一番新しい要素
+  int In;  //データストリームに入ってくる一番新しい要素
 
   //最小値
   struct contents a;
@@ -92,50 +86,39 @@ int main(int argc, char *argv[])
   //ここから時刻による更新
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
-  clock_t start = clock(); //ここから時間を測る
+  clock_t start = clock();  //ここから時間を測る
 
-  while (t < dmax)
-  {
+  while (t < dmax) {
     //出ていく処理
-    if (t >= w)
-    {
+    if (t >= w) {
       int out = database[t - w];
-      histgram[out].erase(histgram[out].begin());
+      histgram[out]--;
       double sum_length = 0;
-      for (int l = 0; l < num_of_hash; l++)
-      {
+      for (int l = 0; l < num_of_hash; l++) {
         sum_length += Minlist[l].size();
-        if (Minlist[l][0].time == t - w)
-        {
+        if (Minlist[l][0].time == t - w) {
           Minlist[l].erase(Minlist[l].begin());
           out_count++;
         }
-        if (out == min_elem[l].label)
-        {
+        if (out == min_elem[l].label) {
           //最小値と同じラベルがストリームデータから出ていく時
           int min = 5000000;
           int m_label;
-          for (int m = 0; m < Minlist[l].size(); m++)
-          {
+          for (int m = 0; m < Minlist[l].size(); m++) {
             int Minlist_value = Minlist[l][m].value;
 
-            if (min > Minlist_value)
-            {
+            if (min > Minlist_value) {
               //最小値を調べる
               int label = Minlist[l][m].label;
-              int value_check = fx[l][label][histgram[label].size()];
+              int value_check = fx[l][label][histgram[label]];
 
-              if (Minlist_value == value_check)
-              {
+              if (Minlist_value == value_check) {
                 //割り当て値に間違いがない場合
                 min = Minlist_value;
                 m_label = label;
-              }
-              else
-              {
+              } else {
                 Minlist[l][m].value = value_check;
-                if (min > value_check)
-                {
+                if (min > value_check) {
                   //割り当て値が間違っている場合
                   min = value_check;
                   m_label = label;
@@ -152,60 +135,53 @@ int main(int argc, char *argv[])
     }
     //入っていく処理////////////////
     In = database[t];
-    histgram[In].push_back(t); //とりあえず先に入れておく方針
+    histgram[In]++;  //とりあえず先に入れておく方針
+    t_histgram[In].push_back(t);
+    // limitを超えたものは消しておく。常にlimitの数までしか所持しない。
+    if (t_histgram[In].size() > t_histgram_limit) {
+      t_histgram[In].erase(t_histgram[In].begin());
+    }
 
-    for (int l = 0; l < num_of_hash; l++)
-    {
-      int in_value = fx[l][In][histgram[In].size()]; //現在入ってきた要素の値
+    for (int l = 0; l < num_of_hash; l++) {
+      int in_value = fx[l][In][histgram[In]];  //現在入ってきた要素の値
 
-      int delete_val = 0; // 1番目の値
+      int delete_val = 0;  // 1番目の値
 
       int m = Minlist[l].size() - 1;
 
-      int back_IN_num = 0;                   // 後方にあるhist_max_labelの要素数
-      int pointer = histgram[In].size() - 1; //ヒストグラムの一番最後の時刻
-      int hist_time = histgram[In][pointer]; // = t
+      int back_IN_num = 0;                      // 後方にあるhist_max_labelの要素数
+      int pointer = t_histgram[In].size() - 1;  //ヒストグラムの一番最後の時刻
+      int hist_time = t_histgram[In][pointer];  // = t
 
-      while (m >= 0)
-      {
+      while (m >= 0) {
         // Minlistのスキャン
-        if (Minlist[l][m].label == In)
-        {
+        if (Minlist[l][m].label == In) {
           //同じラベルのを消す
           Minlist[l].erase(Minlist[l].begin() + m);
           same_count++;
-        }
-        else
-        {
-          while (Minlist[l][m].time < hist_time)
-          {
+        } else {
+          while (Minlist[l][m].time < hist_time) {
             //時刻によって判断
             back_IN_num++;
             delete_val = fx[l][In][back_IN_num];
 
-            if (pointer > 0)
-            {
+            if (pointer > 0) {
               pointer--;
-              hist_time = histgram[In][pointer];
-            }
-            else
-            {
+              hist_time = t_histgram[In][pointer];
+            } else {
               //ヒストグラムの先頭まで行った
               hist_time = -1;
             }
-            if (back_IN_num >= search_limit)
-            {
+            if (back_IN_num >= search_limit) {
               break;
             }
           }
-          if (Minlist[l][m].value >= delete_val)
-          {
+          if (Minlist[l][m].value >= delete_val) {
             //値を比べる
             Minlist[l].erase(Minlist[l].begin() + m);
             another_count++;
           }
         }
-
         m--;
       }
       a.label = In;
@@ -213,26 +189,21 @@ int main(int argc, char *argv[])
       a.value = in_value;
       Minlist[l].push_back(a);
 
-      if (min_elem[l].value > in_value)
-      {
+      if (min_elem[l].value > in_value) {
         //最小値の更新
         min_elem[l].value = in_value;
         min_elem[l].label = In;
       }
     }
 #ifdef DEBUG
-    if (t >= w)
-    {
+    if (t >= w) {
       vector<int> base_hash(num_of_hash);
-      for (int l = 0; l < num_of_hash; l++)
-      {
+      for (int l = 0; l < num_of_hash; l++) {
         int min = 100000;
-        for (int i = t - w + 1; i <= t; i++)
-        {
+        for (int i = t - w + 1; i <= t; i++) {
           int in = database[i];
-          int value = fx[l][in][histgram[in].size()];
-          if (min > value)
-          {
+          int value = fx[l][in][histgram[in]];
+          if (min > value) {
             min = value;
           }
         }
@@ -241,7 +212,6 @@ int main(int argc, char *argv[])
       }
     }
 #endif
-
     t++;
   }
 
@@ -249,9 +219,9 @@ int main(int argc, char *argv[])
   // cout << ave_length << "\n";
 
   // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
-  clock_t end = clock(); //ここまで時間測定
+  clock_t end = clock();  //ここまで時間測定
   // cout << "search_limit:" << search_limit << "\n";
-  // cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
-  cout << search_limit << "           " << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  // cout << search_limit << "           " << (double)(end - start) / CLOCKS_PER_SEC << endl;
   return 0;
 }
