@@ -16,7 +16,7 @@ for size in ${dataset_size[@]}; do
         echo "傾き: ${bias}     datasetのサイズ: ${size}"
         echo "実際のdatasetのサイズ: $(wc zipf_database_${size}_${bias}.txt | awk '{print $1}')"
         while [ $i -le $times ]; do
-            result=$(./SWMH zipf_database_${size}_${bias}.txt 100 Minhash.txt 100 2 | tail -1)
+            result=$(./SWMH_fix_histgram zipf_database_${size}_${bias}.txt 100 Minhash.txt 100 2 | tail -1)
             sum=$(echo "scale=10; $sum + $result" | bc)
             # i=`expr $i + 1` でもよい
             i=$(($i + 1))

@@ -73,6 +73,7 @@ int main(int argc, char *argv[]) {
   // vector<deque<int>> t_histgram(vm);              //要素数0,初期値0
   // const int t_histgram_limit = 2;                 // ヒストグラムの限界数
   vector<std::array<int, 2>> ar(vm, {-1, -1});    // 固定長で試してみる
+  // vector<vector> でも固定長を定義できる
 
   vector<int> reset_count(num_of_hash, 0);
 
