@@ -21,7 +21,7 @@ g++ -O2 -o gminhash2 gminhash2.cpp
 # (3)バッチSWMHの実行時間の計測
 g++ -O2 -o BSWMH BSWMH.cpp
 # ./BSWMH database.txt　SWの数　Minhash.txt マルチセットの上限 更新の間隔
-./BSWMH database.txt 100 Minhash.txt 100 10
+./BSWMH database.txt 100 Minhash.txt 100 100 2
 
 # 実行時間の計測
 g++ -O2 -o SWMH_exam SWMH_exam.cpp
