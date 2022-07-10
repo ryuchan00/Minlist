@@ -1,4 +1,4 @@
-/*Min Hashベースのマルチセットの近似解法*/
+//*Min Hashベースのマルチセットの近似解法*/
 
 /*
  先行研究論文
@@ -93,6 +93,9 @@ int main(int argc, char *argv[]) {
     if (t >= w) {
       int out = database[t - w];
       histgram[out]--;
+      if (t_histgram[out].front() == (t - w)) {
+        t_histgram[out].pop_front();
+      }
       double sum_length = 0;
       for (int l = 0; l < num_of_hash; l++) {
         sum_length += Minlist[l].size();
@@ -136,11 +139,12 @@ int main(int argc, char *argv[]) {
     //入っていく処理////////////////
     In = database[t];
     histgram[In]++;  //とりあえず先に入れておく方針
-    t_histgram[In].push_back(t);
     // limitを超えたものは消しておく。常にlimitの数までしか所持しない。
-    if (t_histgram[In].size() > t_histgram_limit) {
-      t_histgram[In].erase(t_histgram[In].begin());
+
+    if (t_histgram[In].size() >= t_histgram_limit) {
+      t_histgram[In].pop_front();
     }
+    t_histgram[In].push_back(t);
 
     for (int l = 0; l < num_of_hash; l++) {
       int in_value = fx[l][In][histgram[In]];  //現在入ってきた要素の値
@@ -216,11 +220,11 @@ int main(int argc, char *argv[]) {
   }
 
   ave_length = sum_time_ave_length / t;
-  // cout << ave_length << "\n";
+  cout << ave_length << "\n";
 
-  // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
+  cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  //ここまで時間測定
-  // cout << "search_limit:" << search_limit << "\n";
+  cout << "search_limit:" << search_limit << "\n";
   cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
   // cout << search_limit << "           " << (double)(end - start) / CLOCKS_PER_SEC << endl;
   return 0;

@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
   vector<int> histgram(vm);                       // histgramは個数のみを持つ
   // vector<deque<int>> t_histgram(vm);              //要素数0,初期値0
   // const int t_histgram_limit = 2;                 // ヒストグラムの限界数
-  vector<std::array<int, 2>> ar(vm, {-1, -1});    // 固定長で試してみる
+  vector<std::array<int, 2>> ar(vm, {-1, -1});  // 固定長で試してみる
   // vector<vector> でも固定長を定義できる
 
   vector<int> reset_count(num_of_hash, 0);
@@ -98,6 +98,10 @@ int main(int argc, char *argv[]) {
     if (t >= w) {
       int out = database[t - w];
       histgram[out]--;
+      if (ar[out][0] == (t - w)) {
+        ar[out][0] = ar[out][1];
+        ar[out][1] = -1;
+      }
       double sum_length = 0;
       for (int l = 0; l < num_of_hash; l++) {
         sum_length += Minlist[l].size();
@@ -162,7 +166,7 @@ int main(int argc, char *argv[]) {
 
       int m = Minlist[l].size() - 1;
 
-      int back_IN_num = 0;                      // 後方にあるhist_max_labelの要素数
+      int back_IN_num = 0;  // 後方にあるhist_max_labelの要素数
       // int pointer = t_histgram[In].size() - 1;  //ヒストグラムの一番最後の時刻
       // int hist_time = t_histgram[In][pointer];  // = t
       int pointer = 0;
