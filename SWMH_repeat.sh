@@ -6,6 +6,7 @@ times=50
 biases=("0.0" "0.5" "1.0")
 dataset_size=("10" "100" "1000" "10000")
 
+echo $(date)
 echo "繰り返し回数: ${times}"
 echo "ハッシュ関数の数 $(wc Minhash.txt | awk '{print $1}')"
 for size in ${dataset_size[@]}; do
