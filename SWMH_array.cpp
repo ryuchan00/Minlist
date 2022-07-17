@@ -91,6 +91,9 @@ int main(int argc, char *argv[]) {
   //ここから時刻による更新
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
+#ifdef DEBUG
+  std::ofstream ofs("output_array.txt");
+#endif
   clock_t start = clock();  //ここから時間を測る
 
   while (t < dmax) {
@@ -155,6 +158,9 @@ int main(int argc, char *argv[]) {
     } else if (ar[In][1] == -1) {
       ar[In][1] = t;
     } else if (ar[In][1] != -1) {
+#ifdef DEBUG
+      ofs << ar[In][0] << endl;
+#endif
       ar[In][0] = ar[In][1];
       ar[In][1] = t;
     }
@@ -230,7 +236,7 @@ int main(int argc, char *argv[]) {
           int value = fx[l][in][histgram[in]];
           if (min > value) {
             min = value;
-          }
+          } 
         }
         if (min_elem[l].value != min)
           cout << l << " " << min_elem[l].value << " " << min << endl;

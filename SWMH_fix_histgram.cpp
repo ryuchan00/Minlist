@@ -86,6 +86,10 @@ int main(int argc, char *argv[]) {
   //ここから時刻による更新
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
+
+#ifdef DEBUG
+  std::ofstream ofs("output_fix_histgram.txt");
+#endif
   clock_t start = clock();  //ここから時間を測る
 
   while (t < dmax) {
@@ -142,6 +146,9 @@ int main(int argc, char *argv[]) {
     // limitを超えたものは消しておく。常にlimitの数までしか所持しない。
 
     if (t_histgram[In].size() >= t_histgram_limit) {
+#ifdef DEBUG
+      ofs << t_histgram[In].front() << endl;
+#endif
       t_histgram[In].pop_front();
     }
     t_histgram[In].push_back(t);
@@ -199,23 +206,6 @@ int main(int argc, char *argv[]) {
         min_elem[l].label = In;
       }
     }
-#ifdef DEBUG
-    if (t >= w) {
-      vector<int> base_hash(num_of_hash);
-      for (int l = 0; l < num_of_hash; l++) {
-        int min = 100000;
-        for (int i = t - w + 1; i <= t; i++) {
-          int in = database[i];
-          int value = fx[l][in][histgram[in]];
-          if (min > value) {
-            min = value;
-          }
-        }
-        if (min_elem[l].value != min)
-          cout << l << " " << min_elem[l].value << " " << min << endl;
-      }
-    }
-#endif
     t++;
   }
 

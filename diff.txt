@@ -1,0 +1,1 @@
+Files output_array.txt and output_fix_histgram.txt are identical
