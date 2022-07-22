@@ -78,6 +78,7 @@ int main(int argc, char* argv[]) {
   std::vector<std::vector<int> > minhash = make_minhash(num_of_hash, vmm);
 
   //TODO: ここのファイルの出力を2つにする
+  //TODO: 一つのファイルにまとめるようにデータ構造を考える。
   std::ofstream ofs("Minhash.txt");  // Minhash.txtに出力
 
   //TODO: それぞれのファイルに書き込む

@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
             if (min > Minlist_value) {
               //最小値を調べる
               int label = Minlist[l][m].label;
-              //todo: a[l][label] + b[histgram[label]]の値をvalue_checkに代入する
+              //todo: a[l][label] + b[histgram[label]] * 100の値をvalue_checkに代入する
               int value_check = fx[l][label][histgram[label]];
 
               if (Minlist_value == value_check) {
@@ -159,6 +159,7 @@ int main(int argc, char *argv[]) {
     // if (t_histgram[In].size() > t_histgram_limit) {
     //   t_histgram[In].erase(t_histgram[In].begin());
     // }
+    // todo: 入れる処理はdelete_valの計算の後でよさそう。
     if (ar[In][0] == -1) {
       ar[In][0] = t;
     } else if (ar[In][1] == -1) {
@@ -172,7 +173,7 @@ int main(int argc, char *argv[]) {
     }
 
     for (int l = 0; l < num_of_hash; l++) {
-      //todo: ここをa[l][In] * 100 + b[histgram[In]]の値をin_valueに代入するように修正する
+      //todo: ここをa[l][In] + b[histgram[In]] * 100の値をin_valueに代入するように修正する
       int in_value = fx[l][In][histgram[In]];  //現在入ってきた要素の値
 
       int delete_val = 0;  // 1番目の値
@@ -188,8 +189,15 @@ int main(int argc, char *argv[]) {
       } else {
         pointer = 1;
       }
+      // 実はarは要素を1つしか持っていなくても成立する？
+      // ar[In]の要素数はsearch_limit-1なのではないか？
+      // ar[In]の型はintでよさそう
+      // todo: arの要素を一つ減らしたい(=search_limit-1)
       int hist_time = ar[In][pointer];
 
+      // ar[In][pointer]の要素数が1の時は、hist_time=-1を代入しておけば余計なループが省かれそう
+      // todo: back_IN_num=1でここに置いといてよさそう
+      // todo: delete_valの初期値はfx[l][In][1]で初期化してよさそう
       while (m >= 0) {
         // Minlistのスキャン
         if (Minlist[l][m].label == In) {
@@ -197,12 +205,21 @@ int main(int argc, char *argv[]) {
           Minlist[l].erase(Minlist[l].begin() + m);
           same_count++;
         } else {
+          // back_IN_num=1のして初期化して、むだなwhileを省く
+          // todo: hist_timeの初期値はtのひとつ前の値でよさそう
           while (Minlist[l][m].time < hist_time) {
             //時刻によって判断
             back_IN_num++;
-            //todo: ここをa[l][In] * 100 + b[back_IN_num]の値をdelete_valに代入するように修正する
+            //todo: ここをa[l][In] + b[back_IN_num] * 100の値をdelete_valに代入するように修正する
             delete_val = fx[l][In][back_IN_num];
 
+            // back_IN_num=2のとき、hist_timeの更新はこれ以上必要ない。
+            if (back_IN_num >= search_limit) {
+              hist_time = -1;
+              break;
+            }
+            
+            // pointerはなくせそう
             if (pointer > 0) {
               pointer--;
               // hist_time = t_histgram[In][pointer];
@@ -210,9 +227,7 @@ int main(int argc, char *argv[]) {
             } else {
               //ヒストグラムの先頭まで行った
               hist_time = -1;
-            }
-            if (back_IN_num >= search_limit) {
-              break;
+              // delete_valの設定
             }
           }
           if (Minlist[l][m].value >= delete_val) {
