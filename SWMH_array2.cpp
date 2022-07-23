@@ -65,9 +65,9 @@ int main(int argc, char *argv[]) {
       }
     }
   }
-  //todo: ここで要素の種類分のハッシュをもつ配列aと
-  //todo: 多重度分のハッシュを持つ配列bの二つを
-  //todo: 二つのファイルからそれぞれ取得する
+  // todo: ここで要素の種類分のハッシュをもつ配列aと
+  // todo: 多重度分のハッシュを持つ配列bの二つを
+  // todo: 二つのファイルからそれぞれ取得する
 
   ////////////////////////////////////////////////////////////////
 
@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
             if (min > Minlist_value) {
               //最小値を調べる
               int label = Minlist[l][m].label;
-              //todo: a[l][label] + b[histgram[label]] * 100の値をvalue_checkに代入する
+              // todo: a[l][label] + b[histgram[label]] * 100の値をvalue_checkに代入する
               int value_check = fx[l][label][histgram[label]];
 
               if (Minlist_value == value_check) {
@@ -154,26 +154,9 @@ int main(int argc, char *argv[]) {
     //入っていく処理////////////////
     In = database[t];
     histgram[In]++;  //とりあえず先に入れておく方針
-    // t_histgram[In].push_back(t);
-    // limitを超えたものは消しておく。常にlimitの数までしか所持しない。
-    // if (t_histgram[In].size() > t_histgram_limit) {
-    //   t_histgram[In].erase(t_histgram[In].begin());
-    // }
-    // todo: 入れる処理はdelete_valの計算の後でよさそう。
-    if (ar[In][0] == -1) {
-      ar[In][0] = t;
-    } else if (ar[In][1] == -1) {
-      ar[In][1] = t;
-    } else if (ar[In][1] != -1) {
-#ifdef DEBUG
-      ofs << ar[In][0] << endl;
-#endif
-      ar[In][0] = ar[In][1];
-      ar[In][1] = t;
-    }
 
     for (int l = 0; l < num_of_hash; l++) {
-      //todo: ここをa[l][In] + b[histgram[In]] * 100の値をin_valueに代入するように修正する
+      // todo: ここをa[l][In] + b[histgram[In]] * 100の値をin_valueに代入するように修正する
       int in_value = fx[l][In][histgram[In]];  //現在入ってきた要素の値
 
       int delete_val = 0;  // 1番目の値
@@ -181,19 +164,12 @@ int main(int argc, char *argv[]) {
       int m = Minlist[l].size() - 1;
 
       int back_IN_num = 0;  // 後方にあるhist_max_labelの要素数
-      // int pointer = t_histgram[In].size() - 1;  //ヒストグラムの一番最後の時刻
-      // int hist_time = t_histgram[In][pointer];  // = t
       int pointer = 0;
-      if (ar[In][1] == -1) {
-        pointer = 0;
-      } else {
-        pointer = 1;
-      }
       // 実はarは要素を1つしか持っていなくても成立する？
       // ar[In]の要素数はsearch_limit-1なのではないか？
       // ar[In]の型はintでよさそう
       // todo: arの要素を一つ減らしたい(=search_limit-1)
-      int hist_time = ar[In][pointer];
+      int hist_time = t;
 
       // ar[In][pointer]の要素数が1の時は、hist_time=-1を代入しておけば余計なループが省かれそう
       // todo: back_IN_num=1でここに置いといてよさそう
@@ -210,7 +186,7 @@ int main(int argc, char *argv[]) {
           while (Minlist[l][m].time < hist_time) {
             //時刻によって判断
             back_IN_num++;
-            //todo: ここをa[l][In] + b[back_IN_num] * 100の値をdelete_valに代入するように修正する
+            // todo: ここをa[l][In] + b[back_IN_num] * 100の値をdelete_valに代入するように修正する
             delete_val = fx[l][In][back_IN_num];
 
             // back_IN_num=2のとき、hist_timeの更新はこれ以上必要ない。
@@ -218,11 +194,10 @@ int main(int argc, char *argv[]) {
               hist_time = -1;
               break;
             }
-            
+
             // pointerはなくせそう
             if (pointer > 0) {
               pointer--;
-              // hist_time = t_histgram[In][pointer];
               hist_time = ar[In][pointer];
             } else {
               //ヒストグラムの先頭まで行った
@@ -248,6 +223,19 @@ int main(int argc, char *argv[]) {
         min_elem[l].value = in_value;
         min_elem[l].label = In;
       }
+    }
+
+    // todo: 入れる処理はdelete_valの計算の後でよさそう。
+    if (ar[In][0] == -1) {
+      ar[In][0] = t;
+    } else if (ar[In][1] == -1) {
+      ar[In][1] = t;
+    } else if (ar[In][1] != -1) {
+#ifdef DEBUG
+      ofs << ar[In][0] << endl;
+#endif
+      ar[In][0] = ar[In][1];
+      ar[In][1] = t;
     }
 #ifdef DEBUG
     if (t >= w) {
