@@ -196,13 +196,18 @@ int main(int argc, char *argv[]) {
             }
 
             // pointerはなくせそう
-            if (pointer > 0) {
-              pointer--;
-              hist_time = ar[In][pointer];
-            } else {
-              //ヒストグラムの先頭まで行った
+            // if (pointer > 0) {
+            //   pointer--;
+            //   hist_time = ar[In][pointer];
+            // } else {
+            //   //ヒストグラムの先頭まで行った
+            //   hist_time = -1;
+            //   // delete_valの設定
+            // }
+            if (ar[In][0] == -1) {
+              hist_time = ar[In][0];
+            } else if (ar[In][0] != -1) {
               hist_time = -1;
-              // delete_valの設定
             }
           }
           if (Minlist[l][m].value >= delete_val) {
@@ -226,17 +231,7 @@ int main(int argc, char *argv[]) {
     }
 
     // todo: 入れる処理はdelete_valの計算の後でよさそう。
-    if (ar[In][0] == -1) {
-      ar[In][0] = t;
-    } else if (ar[In][1] == -1) {
-      ar[In][1] = t;
-    } else if (ar[In][1] != -1) {
-#ifdef DEBUG
-      ofs << ar[In][0] << endl;
-#endif
-      ar[In][0] = ar[In][1];
-      ar[In][1] = t;
-    }
+    ar[In][0] = t;
 #ifdef DEBUG
     if (t >= w) {
       vector<int> base_hash(num_of_hash);
