@@ -20,7 +20,7 @@
 #include "kyotsu.h"
 #include "minhash.h"
 
-// #define DEBUG
+#define DEBUG
 
 #define PERIOD (100000)
 using namespace std;
@@ -195,18 +195,10 @@ int main(int argc, char *argv[]) {
               break;
             }
 
-            // pointerはなくせそう
-            // if (pointer > 0) {
-            //   pointer--;
-            //   hist_time = ar[In][pointer];
-            // } else {
-            //   //ヒストグラムの先頭まで行った
-            //   hist_time = -1;
-            //   // delete_valの設定
-            // }
-            if (ar[In][0] == -1) {
+            if (ar[In][0] != -1) {
               hist_time = ar[In][0];
-            } else if (ar[In][0] != -1) {
+              ar[In][0] = -1;
+            } else {
               hist_time = -1;
             }
           }
@@ -228,27 +220,30 @@ int main(int argc, char *argv[]) {
         min_elem[l].value = in_value;
         min_elem[l].label = In;
       }
+#ifdef DEBUG
+      ofs << in_value << endl;
+#endif
     }
 
     // todo: 入れる処理はdelete_valの計算の後でよさそう。
     ar[In][0] = t;
-#ifdef DEBUG
-    if (t >= w) {
-      vector<int> base_hash(num_of_hash);
-      for (int l = 0; l < num_of_hash; l++) {
-        int min = 100000;
-        for (int i = t - w + 1; i <= t; i++) {
-          int in = database[i];
-          int value = fx[l][in][histgram[in]];
-          if (min > value) {
-            min = value;
-          }
-        }
-        if (min_elem[l].value != min)
-          cout << l << " " << min_elem[l].value << " " << min << endl;
-      }
-    }
-#endif
+// #ifdef DEBUG
+//     if (t >= w) {
+//       vector<int> base_hash(num_of_hash);
+//       for (int l = 0; l < num_of_hash; l++) {
+//         int min = 100000;
+//         for (int i = t - w + 1; i <= t; i++) {
+//           int in = database[i];
+//           int value = fx[l][in][histgram[in]];
+//           if (min > value) {
+//             min = value;
+//           }
+//         }
+//         if (min_elem[l].value != min)
+//           cout << l << " " << min_elem[l].value << " " << min << endl;
+//       }
+//     }
+// #endif
     t++;
   }
 
