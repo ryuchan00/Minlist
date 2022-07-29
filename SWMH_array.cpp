@@ -19,7 +19,7 @@
 #include "kyotsu.h"
 #include "minhash.h"
 
-#define DEBUG
+// #define DEBUG
 
 #define PERIOD (100000)
 using namespace std;
