@@ -19,7 +19,7 @@
 #include "kyotsu.h"
 #include "minhash.h"
 
-// #define DEBUG
+#define DEBUG
 
 #define PERIOD (100000)
 using namespace std;
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
 #ifdef DEBUG
-  std::ofstream ofs("output_array.txt");
+  std::ofstream ofs("output_array_before.txt");
 #endif
   clock_t start = clock();  //ここから時間を測る
 
@@ -158,9 +158,9 @@ int main(int argc, char *argv[]) {
     } else if (ar[In][1] == -1) {
       ar[In][1] = t;
     } else if (ar[In][1] != -1) {
-#ifdef DEBUG
-      ofs << ar[In][0] << endl;
-#endif
+      // #ifdef DEBUG
+      //       ofs << ar[In][0] << endl;
+      // #endif
       ar[In][0] = ar[In][1];
       ar[In][1] = t;
     }
@@ -225,24 +225,27 @@ int main(int argc, char *argv[]) {
         min_elem[l].value = in_value;
         min_elem[l].label = In;
       }
-    }
 #ifdef DEBUG
-    if (t >= w) {
-      vector<int> base_hash(num_of_hash);
-      for (int l = 0; l < num_of_hash; l++) {
-        int min = 100000;
-        for (int i = t - w + 1; i <= t; i++) {
-          int in = database[i];
-          int value = fx[l][in][histgram[in]];
-          if (min > value) {
-            min = value;
-          } 
-        }
-        if (min_elem[l].value != min)
-          cout << l << " " << min_elem[l].value << " " << min << endl;
-      }
-    }
+      ofs << in_value << endl;
 #endif
+    }
+// #ifdef DEBUG
+//     if (t >= w) {
+//       vector<int> base_hash(num_of_hash);
+//       for (int l = 0; l < num_of_hash; l++) {
+//         int min = 100000;
+//         for (int i = t - w + 1; i <= t; i++) {
+//           int in = database[i];
+//           int value = fx[l][in][histgram[in]];
+//           if (min > value) {
+//             min = value;
+//           }
+//         }
+//         if (min_elem[l].value != min)
+//           cout << l << " " << min_elem[l].value << " " << min << endl;
+//       }
+//     }
+// #endif
     t++;
   }
 
