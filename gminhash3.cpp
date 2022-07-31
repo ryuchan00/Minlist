@@ -69,10 +69,7 @@ int main(int argc, char* argv[]) {
   int multi = atoi(argv[3]);        // 重複度の上限
   srand(atoi(argv[4]));             // シード値
 
-  //使うのはvm,num_of_hash
   /*Min-Hash作成*/
-  // TODO: ここの乗算はしない。
-  int vmm = vm * multi;
 
   // make_minhashの関数をハッシュ関数分と要素の種類分実行する。
   std::vector<std::vector<int> > minhash_element = make_minhash(num_of_hash, vm); // 要素の種類分
