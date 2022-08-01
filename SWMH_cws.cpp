@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdlib>
 
 #include "contents.h"
 #include "kyotsu.h"
@@ -45,8 +46,13 @@ int main(int argc, char *argv[]) {
   int multi = atoi(argv[4]);           // wの中の要素の数の上限
   int vm = minhash[0].size() - multi;  //要素の種類数
   int vmw = vm * multi;                //要素種類数 × 多重度の数
-
-  int search_limit = atoi(argv[5]);  // delete_val探索時の探索回数
+  int search_limit = atoi(argv[5]);    // delete_val探索時の探索回数
+  /* 乱数SEED設定(ここポイント！) */
+  srand((int)time(NULL));
+  int sample_t1 = rand() % (dmax - w) + 1 + w;
+  int sample_t2 = rand() % (dmax - w) + 1 + w;
+  vector<int> histgram_t1(vm);
+  vector<int> histgram_t2(vm);
 
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
@@ -114,6 +120,12 @@ int main(int argc, char *argv[]) {
         ar[out][0] = ar[out][1];
         ar[out][1] = -1;
       }
+      if (t == sample_t1) {
+        copy(histgram.begin(), histgram.end(), histgram_t1.begin());
+      }
+      if (t == sample_t2) {
+        copy(histgram.begin(), histgram.end(), histgram_t2.begin());
+      }
       double sum_length = 0;
       for (int l = 0; l < num_of_hash; l++) {
         sum_length += Minlist[l].size();
@@ -159,7 +171,7 @@ int main(int argc, char *argv[]) {
     histgram[In]++;
 
     for (int l = 0; l < num_of_hash; l++) {
-      int in_value = fx_a[l][In] + fx_b[l][histgram[In]] * vm;  //現在入ってきた要素の値
+      int in_value = fx_a[l][In] + fx_b[l][histgram[In]] * vm;  // 現在入ってきた要素の値
 
       int delete_val = 0;  // 1番目の値
 
@@ -225,6 +237,16 @@ int main(int argc, char *argv[]) {
 
   cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  //ここまで時間測定
+
+  double match_count = 0.0;
+  for (int i; i < vm; i++) {
+    if (histgram_t1[i] <= histgram_t2[i]) {
+      match_count += histgram_t1[i];
+    } else {
+      match_count += histgram_t2[i];
+    }
+  }
   cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  cout << "jascard: " << match_count / w << endl;
   return 0;
 }
