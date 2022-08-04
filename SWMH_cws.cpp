@@ -1,4 +1,4 @@
-// 配列を持つデータ構造array(2)を試してみる
+// cwsの形式で割り当て表を作成する
 //
 /*Min Hashベースのマルチセットの近似解法*/
 
@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdlib>
 
 #include "contents.h"
 #include "kyotsu.h"
@@ -39,35 +40,46 @@ int main(int argc, char *argv[]) {
   vector<vector<int>> minhash;
   vector<int>::iterator it;
 
-  char *mhname = argv[3];            // Minhash.txt
-  minhash = readminhash(mhname);     //ハッシュ関数の読み込み
-  int num_of_hash = minhash.size();  //ハッシュ関数の数
-  int vmw = minhash[0].size();       //要素種類数 × 多重度の数
-  int multi = atoi(argv[4]);         // wの中の要素の数の上限
-  int vm = vmw / multi;              //要素の種類数
-
-  int search_limit = atoi(argv[5]);  // delete_val探索時の探索回数
+  char *mhname = argv[3];              // Minhash.txt
+  minhash = readminhash(mhname);       //ハッシュ関数の読み込み
+  int num_of_hash = minhash.size();    //ハッシュ関数の数
+  int multi = atoi(argv[4]);           // wの中の要素の数の上限
+  int vm = minhash[0].size() - multi;  //要素の種類数
+  int vmw = vm * multi;                //要素種類数 × 多重度の数
+  int search_limit = atoi(argv[5]);    // delete_val探索時の探索回数
+  /* 乱数SEED設定(ここポイント！) */
+  srand((int)time(NULL));
+  int sample_t1 = rand() % (dmax - w) + 1 + w;
+  int sample_t2 = rand() % (dmax - w) + 1 + w;
+  vector<int> histgram_t1(vm);
+  vector<int> histgram_t2(vm);
 
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
-
-  vector<vector<vector<int>>> fx(num_of_hash, vector<vector<int>>(vm, vector<int>(multi + 1, 5000000)));
+  /*要素の種類の配列*/
+  vector<vector<int>> fx_a(num_of_hash, vector<int>(vm));
 
   for (int l = 0; l < num_of_hash; l++) {
     for (int i = 0; i < vm; i++) {
-      for (int s = 1; s <= multi; s++) {
-        int Allocation_s = minhash[l][i + (vm * (s - 1))];  //アルファベットに対してs番目の割り当て値
-        if (Allocation_s > fx[l][i][s - 1]) {
-          fx[l][i][s] = fx[l][i][s - 1];
-        } else {
-          fx[l][i][s] = Allocation_s;
-        }
+      fx_a[l][i] = minhash[l][i];
+    }
+  }
+
+  /*多重度の配列*/
+  // fx_bは、以後に最小値候補とならない値については書き換えを行っているため、比較のためにmulti+1の要素数が必要
+  // 実際に計算に使用する要素は1から
+  vector<vector<int>> fx_b(num_of_hash, vector<int>(multi + 1, 5000000));
+
+  for (int l = 0; l < num_of_hash; l++) {
+    for (int s = 1; s <= multi; s++) {
+      int Allocation_s = minhash[l][(multi + (s - 1))];  //アルファベットに対してs番目の割り当て値
+      if (Allocation_s > fx_b[l][s - 1]) {
+        fx_b[l][s] = fx_b[l][s - 1];
+      } else {
+        fx_b[l][s] = Allocation_s;
       }
     }
   }
-  // todo: ここで要素の種類分のハッシュをもつ配列aと
-  // todo: 多重度分のハッシュを持つ配列bの二つを
-  // todo: 二つのファイルからそれぞれ取得する
 
   ////////////////////////////////////////////////////////////////
 
@@ -75,9 +87,7 @@ int main(int argc, char *argv[]) {
 
   vector<vector<contents>> Minlist(num_of_hash);  //残っている要素のリスト[ハッシュ関数][残ってる要素]
   vector<int> histgram(vm);                       // histgramは個数のみを持つ
-  // vector<deque<int>> t_histgram(vm);              //要素数0,初期値0
-  // const int t_histgram_limit = 2;                 // ヒストグラムの限界数
-  vector<std::array<int, 2>> ar(vm, {-1, -1});  // 固定長で試してみる
+  vector<std::array<int, 1>> ar(vm, {-1});        // 固定長で試してみる
   // vector<vector> でも固定長を定義できる
 
   vector<int> reset_count(num_of_hash, 0);
@@ -97,7 +107,7 @@ int main(int argc, char *argv[]) {
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
 #ifdef DEBUG
-  std::ofstream ofs("output_array.txt");
+  std::ofstream ofs("SWMH_cws.txt");
 #endif
   clock_t start = clock();  //ここから時間を測る
 
@@ -109,6 +119,12 @@ int main(int argc, char *argv[]) {
       if (ar[out][0] == (t - w)) {
         ar[out][0] = ar[out][1];
         ar[out][1] = -1;
+      }
+      if (t == sample_t1) {
+        copy(histgram.begin(), histgram.end(), histgram_t1.begin());
+      }
+      if (t == sample_t2) {
+        copy(histgram.begin(), histgram.end(), histgram_t2.begin());
       }
       double sum_length = 0;
       for (int l = 0; l < num_of_hash; l++) {
@@ -127,8 +143,7 @@ int main(int argc, char *argv[]) {
             if (min > Minlist_value) {
               //最小値を調べる
               int label = Minlist[l][m].label;
-              // todo: a[l][label] + b[histgram[label]] * 100の値をvalue_checkに代入する
-              int value_check = fx[l][label][histgram[label]];
+              int value_check = fx_a[l][label] + fx_b[l][histgram[label]] * vm;
 
               if (Minlist_value == value_check) {
                 //割り当て値に間違いがない場合
@@ -153,11 +168,10 @@ int main(int argc, char *argv[]) {
     }
     //入っていく処理////////////////
     In = database[t];
-    histgram[In]++;  //とりあえず先に入れておく方針
+    histgram[In]++;
 
     for (int l = 0; l < num_of_hash; l++) {
-      // todo: ここをa[l][In] + b[histgram[In]] * 100の値をin_valueに代入するように修正する
-      int in_value = fx[l][In][histgram[In]];  //現在入ってきた要素の値
+      int in_value = fx_a[l][In] + fx_b[l][histgram[In]] * vm;  // 現在入ってきた要素の値
 
       int delete_val = 0;  // 1番目の値
 
@@ -165,15 +179,8 @@ int main(int argc, char *argv[]) {
 
       int back_IN_num = 0;  // 後方にあるhist_max_labelの要素数
       int pointer = 0;
-      // 実はarは要素を1つしか持っていなくても成立する？
-      // ar[In]の要素数はsearch_limit-1なのではないか？
-      // ar[In]の型はintでよさそう
-      // todo: arの要素を一つ減らしたい(=search_limit-1)
       int hist_time = t;
 
-      // ar[In][pointer]の要素数が1の時は、hist_time=-1を代入しておけば余計なループが省かれそう
-      // todo: back_IN_num=1でここに置いといてよさそう
-      // todo: delete_valの初期値はfx[l][In][1]で初期化してよさそう
       while (m >= 0) {
         // Minlistのスキャン
         if (Minlist[l][m].label == In) {
@@ -181,15 +188,12 @@ int main(int argc, char *argv[]) {
           Minlist[l].erase(Minlist[l].begin() + m);
           same_count++;
         } else {
-          // back_IN_num=1のして初期化して、むだなwhileを省く
-          // todo: hist_timeの初期値はtのひとつ前の値でよさそう
           while (Minlist[l][m].time < hist_time) {
             //時刻によって判断
             back_IN_num++;
-            // todo: ここをa[l][In] + b[back_IN_num] * 100の値をdelete_valに代入するように修正する
-            delete_val = fx[l][In][back_IN_num];
+            delete_val = fx_a[l][In] + fx_b[l][back_IN_num] * vm;
 
-            // back_IN_num=2のとき、hist_timeの更新はこれ以上必要ない。
+            // back_IN_num=引数であたえられた値のとき、hist_timeの更新はこれ以上必要ない。
             if (back_IN_num >= search_limit) {
               hist_time = -1;
               break;
@@ -224,26 +228,7 @@ int main(int argc, char *argv[]) {
       ofs << in_value << endl;
 #endif
     }
-
-    // todo: 入れる処理はdelete_valの計算の後でよさそう。
     ar[In][0] = t;
-// #ifdef DEBUG
-//     if (t >= w) {
-//       vector<int> base_hash(num_of_hash);
-//       for (int l = 0; l < num_of_hash; l++) {
-//         int min = 100000;
-//         for (int i = t - w + 1; i <= t; i++) {
-//           int in = database[i];
-//           int value = fx[l][in][histgram[in]];
-//           if (min > value) {
-//             min = value;
-//           }
-//         }
-//         if (min_elem[l].value != min)
-//           cout << l << " " << min_elem[l].value << " " << min << endl;
-//       }
-//     }
-// #endif
     t++;
   }
 
@@ -252,8 +237,16 @@ int main(int argc, char *argv[]) {
 
   cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  //ここまで時間測定
-  // cout << "search_limit:" << search_limit << "\n";
+
+  double match_count = 0.0;
+  for (int i; i < vm; i++) {
+    if (histgram_t1[i] <= histgram_t2[i]) {
+      match_count += histgram_t1[i];
+    } else {
+      match_count += histgram_t2[i];
+    }
+  }
   cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
-  // cout << search_limit << "           " << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  cout << "jascard: " << match_count / w << endl;
   return 0;
 }

@@ -64,32 +64,32 @@ std::vector<std::vector<int> > make_minhash(int num_of_hash, int hashsize) {
 }
 
 int main(int argc, char* argv[]) {
-  int num_of_hash = atoi(argv[1]);  //ハッシュ関数
+  int num_of_hash = atoi(argv[1]);  // ハッシュ関数
   int vm = atoi(argv[2]);           // 要素の種類
-  int malti = atoi(argv[3]);        //重複度の上限
-  srand(atoi(argv[4]));             //シード値
+  int multi = atoi(argv[3]);        // 重複度の上限
+  srand(atoi(argv[4]));             // シード値
 
-  //使うのはvm,num_of_hash
   /*Min-Hash作成*/
-  //TODO: ここの乗算はしない。
-  int vmm = vm * malti;
 
   // make_minhashの関数をハッシュ関数分と要素の種類分実行する。
-  std::vector<std::vector<int> > minhash = make_minhash(num_of_hash, vmm);
+  std::vector<std::vector<int> > minhash_element = make_minhash(num_of_hash, vm); // 要素の種類分
+  std::vector<std::vector<int> > minhash_multi = make_minhash(num_of_hash, multi);// 多重度
 
-  //TODO: ここのファイルの出力を2つにする
-  //TODO: 一つのファイルにまとめるようにデータ構造を考える。
-  std::ofstream ofs("Minhash.txt");  // Minhash.txtに出力
+  // TODO: ここのファイルの出力を2つにする
+  // TODO: 一つのファイルにまとめるようにデータ構造を考える。
+  std::ofstream ofs("Minhash_cws.txt");  // Minhash.txtに出力
 
-  //TODO: それぞれのファイルに書き込む
+  // TODO: それぞれのファイルに書き込む
   for (int i = 0; i < num_of_hash; i++) {
-    for (int j = 0; j < vmm; j++) {
-      ofs << minhash[i][j];
-      if (j != vmm - 1) {
+    for (int j = 0; j < vm; j++) {
+      ofs << minhash_element[i][j];
+      ofs << ",";
+    }
+    for (int j = 0; j < multi; j++) {
+      ofs << minhash_multi[i][j];
+      if (j != multi - 1) {
         ofs << ",";
       }
-      //数字,数字,・・・
-      //のように出力
     }
     ofs << "" << std::endl;  // 1つのMin-Hashを出力後改行
   }
