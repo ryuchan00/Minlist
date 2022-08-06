@@ -21,10 +21,26 @@
 #include "kyotsu.h"
 #include "minhash.h"
 
-// #define DEBUG
+#define DEBUG
 
 #define PERIOD (100000)
 using namespace std;
+
+int mh(vector<int> c, vector<int> hash_table1, vector<int> hash_table2) {
+  int count = 0;
+  int vm = hash_table1.size();
+  for (int i = 1; i < hash_table2.size(); i++) {
+    for (int j = 0; j < vm; j++) {
+      count += 1;
+      auto result = find(c.begin(), c.end(), hash_table1[j] + hash_table2[i] * vm);
+      // 見つかった場合
+      if (result != c.end()) {
+        return count;
+      }
+    }
+  }
+  return 0;
+}
 
 int main(int argc, char *argv[]) {
   int t = 0;
@@ -47,12 +63,14 @@ int main(int argc, char *argv[]) {
   int vm = minhash[0].size() - multi;  //要素の種類数
   int vmw = vm * multi;                //要素種類数 × 多重度の数
   int search_limit = atoi(argv[5]);    // delete_val探索時の探索回数
-  /* 乱数SEED設定(ここポイント！) */
+#ifdef DEBUG
+  /* 乱数SEED設定 */
   srand((int)time(NULL));
-  int sample_t1 = rand() % (dmax - w) + 1 + w;
-  int sample_t2 = rand() % (dmax - w) + 1 + w;
-  vector<int> histgram_t1(vm);
-  vector<int> histgram_t2(vm);
+  int sample_t1 = rand() % dmax;
+  int sample_t2 = rand() % dmax;
+  vector<vector<int>> sampled_hash_list_t1(num_of_hash);
+  vector<vector<int>> sampled_hash_list_t2(num_of_hash);
+#endif
 
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
@@ -106,9 +124,6 @@ int main(int argc, char *argv[]) {
   //ここから時刻による更新
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
-#ifdef DEBUG
-  std::ofstream ofs("SWMH_cws.txt");
-#endif
   clock_t start = clock();  //ここから時間を測る
 
   while (t < dmax) {
@@ -119,12 +134,6 @@ int main(int argc, char *argv[]) {
       if (ar[out][0] == (t - w)) {
         ar[out][0] = ar[out][1];
         ar[out][1] = -1;
-      }
-      if (t == sample_t1) {
-        copy(histgram.begin(), histgram.end(), histgram_t1.begin());
-      }
-      if (t == sample_t2) {
-        copy(histgram.begin(), histgram.end(), histgram_t2.begin());
       }
       double sum_length = 0;
       for (int l = 0; l < num_of_hash; l++) {
@@ -172,11 +181,16 @@ int main(int argc, char *argv[]) {
 
     for (int l = 0; l < num_of_hash; l++) {
       int in_value = fx_a[l][In] + fx_b[l][histgram[In]] * vm;  // 現在入ってきた要素の値
-
+#ifdef DEBUG
+      if ((sample_t1 <= t) && (t <= (sample_t1 + w))) {
+        sampled_hash_list_t1[l].push_back(in_value);
+      }
+      if ((sample_t2 <= t) && (t <= (sample_t2 + w))) {
+        sampled_hash_list_t2[l].push_back(in_value);
+      }
+#endif
       int delete_val = 0;  // 1番目の値
-
       int m = Minlist[l].size() - 1;
-
       int back_IN_num = 0;  // 後方にあるhist_max_labelの要素数
       int pointer = 0;
       int hist_time = t;
@@ -224,9 +238,6 @@ int main(int argc, char *argv[]) {
         min_elem[l].value = in_value;
         min_elem[l].label = In;
       }
-#ifdef DEBUG
-      ofs << in_value << endl;
-#endif
     }
     ar[In][0] = t;
     t++;
@@ -239,14 +250,14 @@ int main(int argc, char *argv[]) {
   clock_t end = clock();  //ここまで時間測定
 
   double match_count = 0.0;
-  for (int i; i < vm; i++) {
-    if (histgram_t1[i] <= histgram_t2[i]) {
-      match_count += histgram_t1[i];
-    } else {
-      match_count += histgram_t2[i];
+#ifdef DEBUG
+  for (int i; i < num_of_hash; i++) {
+    if (mh(sampled_hash_list_t1[i], fx_a[i], fx_b[i]) == mh(sampled_hash_list_t2[i], fx_a[i], fx_b[i])) {
+      match_count++;
     }
   }
+  cout << "jaccard: " << (match_count / num_of_hash) << endl;
+#endif
   cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
-  cout << "jascard: " << match_count / w << endl;
   return 0;
 }
