@@ -256,7 +256,25 @@ int main(int argc, char *argv[]) {
       match_count++;
     }
   }
+
+  // 厳密なjaccard係数を求める
+  vector<vector<int>> intersection(num_of_hash);
+  vector<vector<int>> unions(num_of_hash);
+  double sum;
+  for (int i; i < num_of_hash; i++) {
+    sort(sampled_hash_list_t1[i].begin(), sampled_hash_list_t1[i].end());
+    sort(sampled_hash_list_t2[i].begin(), sampled_hash_list_t2[i].end());
+
+    // a と b の積集合を得る
+    set_intersection(sampled_hash_list_t1[i].begin(), sampled_hash_list_t1[i].end(), sampled_hash_list_t2[i].begin(), sampled_hash_list_t2[i].end(), back_inserter(intersection[i]));
+
+    // aとbの和集合を作る
+    set_union(sampled_hash_list_t1[i].begin(), sampled_hash_list_t1[i].end(), sampled_hash_list_t2[i].begin(), sampled_hash_list_t2[i].end(), inserter(unions[i], std::end(unions[i])));
+
+    sum += (double)intersection[i].size() / unions[i].size();
+  }
   cout << "jaccard: " << (match_count / num_of_hash) << endl;
+  cout << "厳密なjaccard: " << (sum / num_of_hash) << endl;
 #endif
   cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
   return 0;
