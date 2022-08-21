@@ -13,6 +13,8 @@
 // 元データの要素をランダムに組み合わせてデータベースを作る関数                                    //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <sys/time.h>
+
 #include <algorithm>
 #include <array>
 #include <cstdlib>
@@ -24,8 +26,13 @@
 #define DEBUG
 
 #define PERIOD (100000)
+#define MAX (1000000000)
 using namespace std;
 
+// ハッシュテーブルを線形探索して、ある時点tのスライドウィンドゥの中に存在する最初のハッシュ値が見つかった場合に探索回数を返す。
+// c: スライドウィンドゥ内の要素をハッシュ値に変換したもの
+// hash_table1: 要素のハッシュテーブル
+// hash_table2: 多重度のハッシュテーブル
 int mh(vector<int> c, vector<int> hash_table1, vector<int> hash_table2) {
   int count = 0;
   int vm = hash_table1.size();
@@ -39,7 +46,7 @@ int mh(vector<int> c, vector<int> hash_table1, vector<int> hash_table2) {
       }
     }
   }
-  return 0;
+  return MAX;
 }
 
 int main(int argc, char *argv[]) {
@@ -65,11 +72,16 @@ int main(int argc, char *argv[]) {
   int search_limit = atoi(argv[5]);    // delete_val探索時の探索回数
 #ifdef DEBUG
   /* 乱数SEED設定 */
-  srand((int)time(NULL));
+  struct timeval tv;        // 変数の宣言
+  gettimeofday(&tv, NULL);  // 現在の時刻を取得
+  srand((unsigned int)tv.tv_sec * ((unsigned int)tv.tv_usec + 1)); // 秒×μ秒 + 1
+  // srand((int)time(NULL));
   int sample_t1 = rand() % dmax;
   int sample_t2 = rand() % dmax;
   vector<vector<int>> sampled_hash_list_t1(num_of_hash);
   vector<vector<int>> sampled_hash_list_t2(num_of_hash);
+  vector<int> in_t1;
+  vector<int> in_t2;
 #endif
 
   ////////////////////////////////////////////////////////////////
@@ -86,7 +98,7 @@ int main(int argc, char *argv[]) {
   /*多重度の配列*/
   // fx_bは、以後に最小値候補とならない値については書き換えを行っているため、比較のためにmulti+1の要素数が必要
   // 実際に計算に使用する要素は1から
-  vector<vector<int>> fx_b(num_of_hash, vector<int>(multi + 1, 5000000));
+  vector<vector<int>> fx_b(num_of_hash, vector<int>(multi + 1, MAX));
 
   for (int l = 0; l < num_of_hash; l++) {
     for (int s = 1; s <= multi; s++) {
@@ -179,13 +191,23 @@ int main(int argc, char *argv[]) {
     In = database[t];
     histgram[In]++;
 
+#ifdef DEBUG
+    if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
+      in_t1.push_back(In);
+    }
+    if ((sample_t2 <= t) && (t < (sample_t2 + w))) {
+      in_t2.push_back(In);
+    }
+#endif
+
     for (int l = 0; l < num_of_hash; l++) {
       int in_value = fx_a[l][In] + fx_b[l][histgram[In]] * vm;  // 現在入ってきた要素の値
 #ifdef DEBUG
-      if ((sample_t1 <= t) && (t <= (sample_t1 + w))) {
+                                                                // あらかじめサンプリングしたtのスライドウィンドゥの値をつくる
+      if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
         sampled_hash_list_t1[l].push_back(in_value);
       }
-      if ((sample_t2 <= t) && (t <= (sample_t2 + w))) {
+      if ((sample_t2 <= t) && (t < (sample_t2 + w))) {
         sampled_hash_list_t2[l].push_back(in_value);
       }
 #endif
@@ -252,29 +274,29 @@ int main(int argc, char *argv[]) {
   double match_count = 0.0;
 #ifdef DEBUG
   for (int i; i < num_of_hash; i++) {
-    if (mh(sampled_hash_list_t1[i], fx_a[i], fx_b[i]) == mh(sampled_hash_list_t2[i], fx_a[i], fx_b[i])) {
+    int mh_t1 = mh(sampled_hash_list_t1[i], fx_a[i], fx_b[i]);
+    int mh_t2 = mh(sampled_hash_list_t2[i], fx_a[i], fx_b[i]);
+    if (mh_t1 <= vmw && mh_t1 <= vmw && mh_t1 == mh_t2) {
       match_count++;
     }
   }
+  cout << "近似jaccard係数: " << (match_count / num_of_hash) << endl;
 
   // 厳密なjaccard係数を求める
-  vector<vector<int>> intersection(num_of_hash);
-  vector<vector<int>> unions(num_of_hash);
-  double sum;
-  for (int i; i < num_of_hash; i++) {
-    sort(sampled_hash_list_t1[i].begin(), sampled_hash_list_t1[i].end());
-    sort(sampled_hash_list_t2[i].begin(), sampled_hash_list_t2[i].end());
+  vector<int> intersection_in;
+  vector<int> union_in;
+  double strict_jaccard = 0.0;
+  sort(in_t1.begin(), in_t1.end());
+  sort(in_t2.begin(), in_t2.end());
 
-    // a と b の積集合を得る
-    set_intersection(sampled_hash_list_t1[i].begin(), sampled_hash_list_t1[i].end(), sampled_hash_list_t2[i].begin(), sampled_hash_list_t2[i].end(), back_inserter(intersection[i]));
+  // aとbの積集合を得る
+  set_intersection(in_t1.begin(), in_t1.end(), in_t2.begin(), in_t2.end(), back_inserter(intersection_in));
 
-    // aとbの和集合を作る
-    set_union(sampled_hash_list_t1[i].begin(), sampled_hash_list_t1[i].end(), sampled_hash_list_t2[i].begin(), sampled_hash_list_t2[i].end(), inserter(unions[i], std::end(unions[i])));
+  // aとbの和集合を作る
+  set_union(in_t1.begin(), in_t1.end(), in_t2.begin(), in_t2.end(), inserter(union_in, std::end(union_in)));
 
-    sum += (double)intersection[i].size() / unions[i].size();
-  }
-  cout << "jaccard: " << (match_count / num_of_hash) << endl;
-  cout << "厳密なjaccard: " << (sum / num_of_hash) << endl;
+  strict_jaccard = (double)intersection_in.size() / union_in.size();
+  cout << "厳密なjaccard係数: " << strict_jaccard << endl;
 #endif
   cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
   return 0;
