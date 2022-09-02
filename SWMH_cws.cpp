@@ -33,6 +33,7 @@ using namespace std;
 // c: スライドウィンドゥ内の要素をハッシュ値に変換したもの
 // hash_table1: 要素のハッシュテーブル
 // hash_table2: 多重度のハッシュテーブル
+
 int mh(vector<int> c, vector<int> hash_table1, vector<int> hash_table2) {
   int count = 0;
   int vm = hash_table1.size();
@@ -72,9 +73,9 @@ int main(int argc, char *argv[]) {
   int search_limit = atoi(argv[5]);    // delete_val探索時の探索回数
 #ifdef DEBUG
   /* 乱数SEED設定 */
-  struct timeval tv;        // 変数の宣言
-  gettimeofday(&tv, NULL);  // 現在の時刻を取得
-  srand((unsigned int)tv.tv_sec * ((unsigned int)tv.tv_usec + 1)); // 秒×μ秒 + 1
+  struct timeval tv;                                                // 変数の宣言
+  gettimeofday(&tv, NULL);                                          // 現在の時刻を取得
+  srand((unsigned int)tv.tv_sec * ((unsigned int)tv.tv_usec + 1));  // 秒×μ秒 + 1
   // srand((int)time(NULL));
   int sample_t1 = rand() % dmax;
   int sample_t2 = rand() % dmax;
@@ -273,30 +274,14 @@ int main(int argc, char *argv[]) {
 
   double match_count = 0.0;
 #ifdef DEBUG
+  // 近似Jaccard係数をハッシュ関数の数だけ求めてみる
   for (int i; i < num_of_hash; i++) {
-    int mh_t1 = mh(sampled_hash_list_t1[i], fx_a[i], fx_b[i]);
-    int mh_t2 = mh(sampled_hash_list_t2[i], fx_a[i], fx_b[i]);
-    if (mh_t1 <= vmw && mh_t1 <= vmw && mh_t1 == mh_t2) {
-      match_count++;
-    }
+    double jaccard = approximation_jaccard(sampled_hash_list_t1[i], sampled_hash_list_t2[i], 100);
+    cout << "近似jaccard係数: " << jaccard << endl;
   }
-  cout << "近似jaccard係数: " << (match_count / num_of_hash) << endl;
 
-  // 厳密なjaccard係数を求める
-  vector<int> intersection_in;
-  vector<int> union_in;
-  double strict_jaccard = 0.0;
-  sort(in_t1.begin(), in_t1.end());
-  sort(in_t2.begin(), in_t2.end());
-
-  // aとbの積集合を得る
-  set_intersection(in_t1.begin(), in_t1.end(), in_t2.begin(), in_t2.end(), back_inserter(intersection_in));
-
-  // aとbの和集合を作る
-  set_union(in_t1.begin(), in_t1.end(), in_t2.begin(), in_t2.end(), inserter(union_in, std::end(union_in)));
-
-  strict_jaccard = (double)intersection_in.size() / union_in.size();
-  cout << "厳密なjaccard係数: " << strict_jaccard << endl;
+  // 厳密なJaccard係数を求める
+  cout << "厳密なjaccard係数: " << strict_jaccard(in_t1, in_t2) << endl;
 #endif
   cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
   return 0;
