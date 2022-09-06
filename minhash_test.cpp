@@ -12,17 +12,13 @@ class FunctionTest : public CPPUNIT_NS::TestFixture {
   //テストクラス
   CPPUNIT_TEST_SUITE(FunctionTest);             //登録のスタート
   CPPUNIT_TEST(test_multi_set_strict_jaccard);  //メンバ関数の登録
-  CPPUNIT_TEST(test_approximation_jaccard);
-  //   CPPUNIT_TEST(test_diff);           //メンバ関数の登録
-  //   CPPUNIT_TEST(test_mul);            //メンバ関数の登録
+  CPPUNIT_TEST(test_mh);
   CPPUNIT_TEST_SUITE_END();  //登録の終了
 
  protected:
   //   Function *func;
   void test_multi_set_strict_jaccard();
-  void test_approximation_jaccard();
-  //   void test_diff();
-  //   void test_mul();
+  void test_mh();
 
  public:
   void setUp();
@@ -49,35 +45,14 @@ void FunctionTest::test_multi_set_strict_jaccard() {
   CPPUNIT_ASSERT_EQUAL(strict_jaccard(hash1, hash2), 2.0 / 3.0);
 }
 
-void FunctionTest::test_approximation_jaccard() {
-  std::vector<int> hash1{3, 2, 1};
-  std::vector<int> hash2{1, 4, 5};
+void FunctionTest::test_mh() {
+	// 正常に取れているか確認する。
+  std::vector<int> in{0, 0, 1};
+  std::vector<int> fx_a{11, 22};
+  std::vector<int> fx_b{99, 10, 9};  // 99は使用しない
 
-  CPPUNIT_ASSERT_EQUAL(approximation_jaccard(hash1, hash2, 3), 1.0 / 3);
-
-  hash1 = {1, 2, 3};
-  hash2 = {1, 2, 3};
-
-  CPPUNIT_ASSERT_EQUAL(approximation_jaccard(hash1, hash2, 3), 3.0 / 3);
+  CPPUNIT_ASSERT_EQUAL(mh(in, fx_a, fx_b), 29);
 }
-// void FunctionTest::test_add2() {
-//   std::vector<int> hash1{1, 2, 2};
-//   std::vector<int> hash2{1, 2, 2, 2};
-
-//   CPPUNIT_ASSERT_EQUAL(strict_jaccard(hash1, hash2), 3.0 / 4.0);
-// }
-
-// void FunctionTest::test_diff() {
-//   //ダミーで100を入れたので通過
-//   CPPUNIT_ASSERT_EQUAL(100.0, func->diff(3.0, 2.0));
-//   // assertで止まる
-//   CPPUNIT_ASSERT_EQUAL(1.0, func->diff(3.0, 2.0));
-// }
-
-// void FunctionTest::test_mul() {
-//   //差が２００以下なのでテストを通過する。
-//   CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, func->mul(3, 2), 200.0);
-// }
 
 int main(int argc, char const *argv[]) {
   CPPUNIT_NS::TestResult controller;

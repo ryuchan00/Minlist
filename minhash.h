@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <set>
 #include <sstream>
@@ -67,11 +68,17 @@ double strict_jaccard(std::vector<int> set_a, std::vector<int> set_b) {
 }
 
 // 近似Jaccard係数の算出
-double approximation_jaccard(std::vector<int> set_a, std::vector<int> set_b, int size_k) {
-  sort(set_a.begin(), set_a.end());
-  sort(set_b.begin(), set_b.end());
-  std::vector<int> intersection_in;
-  set_intersection(set_a.begin(), set_a.end(), set_b.begin(), set_b.end(), back_inserter(intersection_in));
+int mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) {
+  int vm = fx_a.size();
+  std::vector<int> histgram(vm, 0);
+  int min = 999999;
 
-  return (double)intersection_in.size() / size_k;
+  for (int i = 0; i < s.size(); i++) {
+    histgram[s[i]] += 1;
+    int in_value = fx_a[s[i]] + fx_b[histgram[s[i]]] * vm;
+    if (in_value < min) {
+      min = in_value;
+    }
+  }
+  return min;
 }

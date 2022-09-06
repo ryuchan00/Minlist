@@ -34,22 +34,6 @@ using namespace std;
 // hash_table1: 要素のハッシュテーブル
 // hash_table2: 多重度のハッシュテーブル
 
-int mh(vector<int> c, vector<int> hash_table1, vector<int> hash_table2) {
-  int count = 0;
-  int vm = hash_table1.size();
-  for (int i = 1; i < hash_table2.size(); i++) {
-    for (int j = 0; j < vm; j++) {
-      count += 1;
-      auto result = find(c.begin(), c.end(), hash_table1[j] + hash_table2[i] * vm);
-      // 見つかった場合
-      if (result != c.end()) {
-        return count;
-      }
-    }
-  }
-  return MAX;
-}
-
 int main(int argc, char *argv[]) {
   int t = 0;
 
@@ -272,13 +256,16 @@ int main(int argc, char *argv[]) {
   cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  //ここまで時間測定
 
-  double match_count = 0.0;
 #ifdef DEBUG
   // 近似Jaccard係数をハッシュ関数の数だけ求めてみる
+  double match_count = 0.0;
+
   for (int i; i < num_of_hash; i++) {
-    double jaccard = approximation_jaccard(sampled_hash_list_t1[i], sampled_hash_list_t2[i], 100);
-    cout << "近似jaccard係数: " << jaccard << endl;
+    if (mh(in_t1, fx_a[i], fx_b[i]) == mh(in_t2, fx_a[i], fx_b[i])) {
+      match_count += 1;
+    }
   }
+  cout << "近似jaccard係数: " << match_count / num_of_hash << endl;
 
   // 厳密なJaccard係数を求める
   cout << "厳密なjaccard係数: " << strict_jaccard(in_t1, in_t2) << endl;
