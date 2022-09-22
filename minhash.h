@@ -52,7 +52,7 @@ struct rank
 //を近似してるから
 
 // 厳密なJaccard係数の算出
-double strict_jaccard(std::vector<int> set_a, std::vector<int> set_b) {
+double strict_jaccard(std::vector<int> &set_a, std::vector<int> &set_b) {
   std::vector<int> intersection_in;
   std::vector<int> union_in;
   sort(set_a.begin(), set_a.end());
@@ -68,17 +68,19 @@ double strict_jaccard(std::vector<int> set_a, std::vector<int> set_b) {
 }
 
 // 近似Jaccard係数の算出
-int mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) {
+ int mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) {
   int vm = fx_a.size();
   std::vector<int> histgram(vm, 0);
   int min = 999999;
+  int min_si;
 
   for (int i = 0; i < s.size(); i++) {
     histgram[s[i]] += 1;
-    int in_value = fx_a[s[i]] + fx_b[histgram[s[i]]] * vm;
+    int in_value = fx_a[s[i]] + fx_b[histgram[s[i]]];
     if (in_value < min) {
       min = in_value;
+      min_si = s[i];
     }
   }
-  return min;
+  return min_si;
 }
