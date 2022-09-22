@@ -16,6 +16,7 @@ class FunctionTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST(test_multi_set_strict_jaccard);  //メンバ関数の登録
   CPPUNIT_TEST(test_mh);
   CPPUNIT_TEST(test_set_intersection);
+  CPPUNIT_TEST(test_set_union);
   CPPUNIT_TEST_SUITE_END();  //登録の終了
 
  protected:
@@ -23,6 +24,7 @@ class FunctionTest : public CPPUNIT_NS::TestFixture {
   void test_multi_set_strict_jaccard();
   void test_mh();
   void test_set_intersection();
+  void test_set_union();
 
  public:
   void setUp();
@@ -43,10 +45,10 @@ void FunctionTest::testDown() {
 
 void FunctionTest::test_multi_set_strict_jaccard() {
   // 多重集合でも機能することを確認する
-  std::vector<int> hash1{1, 2};
-  std::vector<int> hash2{1, 2, 2};
+  std::vector<int> set1{1, 2};
+  std::vector<int> set2{1, 2, 2};
 
-  CPPUNIT_ASSERT_EQUAL(strict_jaccard(hash1, hash2), 2.0 / 3.0);
+  CPPUNIT_ASSERT_EQUAL(strict_jaccard(set1, set2), 2.0 / 3.0);
 }
 
 void FunctionTest::test_mh() {
@@ -74,6 +76,19 @@ void FunctionTest::test_set_intersection() {
 
   std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), back_inserter(intersection_in));
   bool equal = intersection_in.size() == results.size() && std::equal(intersection_in.cbegin(), intersection_in.cend(), results.cbegin());
+
+  CPPUNIT_ASSERT_EQUAL(equal, true);
+}
+
+void FunctionTest::test_set_union() {
+  // 多重集合でも機能することを確認する
+  std::vector<int> set1{1, 2, 3};
+  std::vector<int> set2{1, 2, 2};
+  std::vector<int> results{1, 2, 2, 3};
+  std::vector<int> union_in;
+
+  std::set_union(set1.begin(), set1.end(), set2.begin(), set2.end(), back_inserter(union_in));
+  bool equal = union_in.size() == results.size() && std::equal(union_in.cbegin(), union_in.cend(), results.cbegin());
 
   CPPUNIT_ASSERT_EQUAL(equal, true);
 }

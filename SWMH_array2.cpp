@@ -65,9 +65,6 @@ int main(int argc, char *argv[]) {
       }
     }
   }
-  // todo: ここで要素の種類分のハッシュをもつ配列aと
-  // todo: 多重度分のハッシュを持つ配列bの二つを
-  // todo: 二つのファイルからそれぞれ取得する
 
   ////////////////////////////////////////////////////////////////
 
@@ -127,7 +124,6 @@ int main(int argc, char *argv[]) {
             if (min > Minlist_value) {
               //最小値を調べる
               int label = Minlist[l][m].label;
-              // todo: a[l][label] + b[histgram[label]] * 100の値をvalue_checkに代入する
               int value_check = fx[l][label][histgram[label]];
 
               if (Minlist_value == value_check) {
@@ -156,7 +152,6 @@ int main(int argc, char *argv[]) {
     histgram[In]++;  //とりあえず先に入れておく方針
 
     for (int l = 0; l < num_of_hash; l++) {
-      // todo: ここをa[l][In] + b[histgram[In]] * 100の値をin_valueに代入するように修正する
       int in_value = fx[l][In][histgram[In]];  //現在入ってきた要素の値
 
       int delete_val = 0;  // 1番目の値
@@ -168,12 +163,9 @@ int main(int argc, char *argv[]) {
       // 実はarは要素を1つしか持っていなくても成立する？
       // ar[In]の要素数はsearch_limit-1なのではないか？
       // ar[In]の型はintでよさそう
-      // todo: arの要素を一つ減らしたい(=search_limit-1)
       int hist_time = t;
 
       // ar[In][pointer]の要素数が1の時は、hist_time=-1を代入しておけば余計なループが省かれそう
-      // todo: back_IN_num=1でここに置いといてよさそう
-      // todo: delete_valの初期値はfx[l][In][1]で初期化してよさそう
       while (m >= 0) {
         // Minlistのスキャン
         if (Minlist[l][m].label == In) {
@@ -182,11 +174,9 @@ int main(int argc, char *argv[]) {
           same_count++;
         } else {
           // back_IN_num=1のして初期化して、むだなwhileを省く
-          // todo: hist_timeの初期値はtのひとつ前の値でよさそう
           while (Minlist[l][m].time < hist_time) {
             //時刻によって判断
             back_IN_num++;
-            // todo: ここをa[l][In] + b[back_IN_num] * 100の値をdelete_valに代入するように修正する
             delete_val = fx[l][In][back_IN_num];
 
             // back_IN_num=2のとき、hist_timeの更新はこれ以上必要ない。
@@ -225,25 +215,7 @@ int main(int argc, char *argv[]) {
 #endif
     }
 
-    // todo: 入れる処理はdelete_valの計算の後でよさそう。
     ar[In][0] = t;
-// #ifdef DEBUG
-//     if (t >= w) {
-//       vector<int> base_hash(num_of_hash);
-//       for (int l = 0; l < num_of_hash; l++) {
-//         int min = 100000;
-//         for (int i = t - w + 1; i <= t; i++) {
-//           int in = database[i];
-//           int value = fx[l][in][histgram[in]];
-//           if (min > value) {
-//             min = value;
-//           }
-//         }
-//         if (min_elem[l].value != min)
-//           cout << l << " " << min_elem[l].value << " " << min << endl;
-//       }
-//     }
-// #endif
     t++;
   }
 

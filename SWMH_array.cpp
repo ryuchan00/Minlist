@@ -229,23 +229,23 @@ int main(int argc, char *argv[]) {
       ofs << in_value << endl;
 #endif
     }
-// #ifdef DEBUG
-//     if (t >= w) {
-//       vector<int> base_hash(num_of_hash);
-//       for (int l = 0; l < num_of_hash; l++) {
-//         int min = 100000;
-//         for (int i = t - w + 1; i <= t; i++) {
-//           int in = database[i];
-//           int value = fx[l][in][histgram[in]];
-//           if (min > value) {
-//             min = value;
-//           }
-//         }
-//         if (min_elem[l].value != min)
-//           cout << l << " " << min_elem[l].value << " " << min << endl;
-//       }
-//     }
-// #endif
+    // #ifdef DEBUG
+    //     if (t >= w) {
+    //       vector<int> base_hash(num_of_hash);
+    //       for (int l = 0; l < num_of_hash; l++) {
+    //         int min = 100000;
+    //         for (int i = t - w + 1; i <= t; i++) {
+    //           int in = database[i];
+    //           int value = fx[l][in][histgram[in]];
+    //           if (min > value) {
+    //             min = value;
+    //           }
+    //         }
+    //         if (min_elem[l].value != min)
+    //           cout << l << " " << min_elem[l].value << " " << min << endl;
+    //       }
+    //     }
+    // #endif
     t++;
   }
 
