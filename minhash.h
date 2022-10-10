@@ -7,9 +7,9 @@
 #include <vector>
 
 /*Minhash読み込み*/
-std::vector<std::vector<int> > readminhash(char *filename) {
+std::vector<std::vector<int>> readminhash(char *filename) {
   int i = 0;
-  std::vector<std::vector<int> > minhash;
+  std::vector<std::vector<int>> minhash;
   std::ifstream ifs(filename);
   int line = 0;
   std::vector<int> empty;
@@ -68,7 +68,7 @@ double strict_jaccard(std::vector<int> &set_a, std::vector<int> &set_b) {
 }
 
 // 近似Jaccard係数の算出
- int mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) {
+int mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) {
   int vm = fx_a.size();
   std::vector<int> histgram(vm, 0);
   int min = 999999;
@@ -83,4 +83,25 @@ double strict_jaccard(std::vector<int> &set_a, std::vector<int> &set_b) {
     }
   }
   return min_si;
+}
+
+std::vector<std::vector<std::vector<index>>> active_index(int &num_of_hash, int &vm, int &multi, std::vector<std::vector<int>> &minhash) {
+  std::vector<std::vector<std::vector<index>>> fx(num_of_hash, std::vector<std::vector<index>>(vm, std::vector<index>()));
+  struct index idx;
+  for (int l = 0; l < num_of_hash; l++) {
+    for (int i = 0; i < vm; i++) {
+      int before_value = 500000000;
+      for (int s = 1; s <= multi; s++) {
+        int Allocation_s = minhash[l][i + (vm * (s - 1))];  //アルファベットに対してs番目の割り当て値
+        if (!(Allocation_s > before_value)) {
+          idx.multiplicity = s;
+          idx.value = Allocation_s;
+          fx[l][i].push_back(idx);
+          struct index idx;
+          before_value = Allocation_s;
+        }
+      }
+    }
+  }
+  return fx;
 }

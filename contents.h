@@ -13,3 +13,8 @@ struct ranking
         return sim > rhs.sim;
     }
 };
+
+struct index {
+  int multiplicity;
+  int value;
+};

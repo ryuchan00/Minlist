@@ -1,6 +1,7 @@
 // 配列を持つデータ構造array(2)を試してみる
 //
 /*Min Hashベースのマルチセットの近似解法*/
+/*Active Indexを実装したもの*/
 
 /*
  先行研究論文
@@ -51,17 +52,37 @@ int main(int argc, char *argv[]) {
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
 
-  vector<vector<vector<int>>> fx(num_of_hash, vector<vector<int>>(vm, vector<int>(multi + 1, 5000000)));
+  // vector<vector<vector<int>>> fx(num_of_hash, vector<vector<int>>(vm, vector<int>(multi + 1, 5000000)));
+
+  // for (int l = 0; l < num_of_hash; l++) {
+  //   for (int i = 0; i < vm; i++) {
+  //     for (int s = 1; s <= multi; s++) {
+  //       int Allocation_s = minhash[l][i + (vm * (s - 1))];  //アルファベットに対してs番目の割り当て値
+  //       if (Allocation_s > fx[l][i][s - 1]) {
+  //         fx[l][i][s] = fx[l][i][s - 1];
+  //       } else {
+  //         fx[l][i][s] = Allocation_s;
+  //       }
+  //     }
+  //   }
+  // }
+
+  vector<vector<vector<index>>> fx(num_of_hash, vector<vector<index>>(vm, vector<index>()));
+  struct index idx;
 
   for (int l = 0; l < num_of_hash; l++) {
     for (int i = 0; i < vm; i++) {
+      int before_value = 500000000;
       for (int s = 1; s <= multi; s++) {
         int Allocation_s = minhash[l][i + (vm * (s - 1))];  //アルファベットに対してs番目の割り当て値
-        if (Allocation_s > fx[l][i][s - 1]) {
-          fx[l][i][s] = fx[l][i][s - 1];
+        if (Allocation_s > before_value) {
+          // fx[l][i][s] = before_value;
         } else {
-          fx[l][i][s] = Allocation_s;
+          idx.multiplicity = s;
+          idx.value = Allocation_s;
+          fx[l][i].push_back(idx);
         }
+        before_value = Allocation_s;
       }
     }
   }
