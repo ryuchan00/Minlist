@@ -13,6 +13,10 @@
 // ./MHI4 database.txt queri.txt シード値　SWの数　Minhash.txt マルチセットの上限 出力ファイル名//
 // 元データの要素をランダムに組み合わせてデータベースを作る関数                                    //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/resource.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <array>
@@ -52,40 +56,8 @@ int main(int argc, char *argv[]) {
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
 
-  // vector<vector<vector<int>>> fx(num_of_hash, vector<vector<int>>(vm, vector<int>(multi + 1, 5000000)));
-
-  // for (int l = 0; l < num_of_hash; l++) {
-  //   for (int i = 0; i < vm; i++) {
-  //     for (int s = 1; s <= multi; s++) {
-  //       int Allocation_s = minhash[l][i + (vm * (s - 1))];  //アルファベットに対してs番目の割り当て値
-  //       if (Allocation_s > fx[l][i][s - 1]) {
-  //         fx[l][i][s] = fx[l][i][s - 1];
-  //       } else {
-  //         fx[l][i][s] = Allocation_s;
-  //       }
-  //     }
-  //   }
-  // }
-
-  vector<vector<vector<index>>> fx(num_of_hash, vector<vector<index>>(vm, vector<index>()));
-  struct index idx;
-
-  for (int l = 0; l < num_of_hash; l++) {
-    for (int i = 0; i < vm; i++) {
-      int before_value = 500000000;
-      for (int s = 1; s <= multi; s++) {
-        int Allocation_s = minhash[l][i + (vm * (s - 1))];  //アルファベットに対してs番目の割り当て値
-        if (Allocation_s > before_value) {
-          // fx[l][i][s] = before_value;
-        } else {
-          idx.multiplicity = s;
-          idx.value = Allocation_s;
-          fx[l][i].push_back(idx);
-        }
-        before_value = Allocation_s;
-      }
-    }
-  }
+  vector<vector<vector<index>>> fx(num_of_hash);
+  fx = active_index(num_of_hash, vm, multi, minhash);
 
   ////////////////////////////////////////////////////////////////
 
@@ -114,6 +86,9 @@ int main(int argc, char *argv[]) {
   //ここから時刻による更新
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
+
+  vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm));
+  int tmp_pointer;
 #ifdef DEBUG
   std::ofstream ofs("output_array.txt");
 #endif
@@ -145,7 +120,11 @@ int main(int argc, char *argv[]) {
             if (min > Minlist_value) {
               //最小値を調べる
               int label = Minlist[l][m].label;
-              int value_check = fx[l][label][histgram[label]];
+              // int value_check = fx[l][label][histgram[label]];
+              if (fx[l][m][allocation_pointer[l][label]].multiplicity > histgram[label]) {
+                allocation_pointer[l][label] -= 1;
+              }
+              int value_check = fx[l][label][allocation_pointer[l][label]].value;
 
               if (Minlist_value == value_check) {
                 //割り当て値に間違いがない場合
@@ -173,7 +152,12 @@ int main(int argc, char *argv[]) {
     histgram[In]++;  //とりあえず先に入れておく方針
 
     for (int l = 0; l < num_of_hash; l++) {
-      int in_value = fx[l][In][histgram[In]];  //現在入ってきた要素の値
+      if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity == histgram[In]) {
+        allocation_pointer[l][In] += 1;
+        // tmp_pointer.multiplicity = fx[l][In][allocation_pointer[l][In] + 1].multiplicity;
+        tmp_pointer = allocation_pointer[l][In];
+      }
+      int in_value = fx[l][In][allocation_pointer[l][In]].value;  //現在入ってきた要素の値
 
       int delete_val = 0;  // 1番目の値
 
@@ -198,7 +182,10 @@ int main(int argc, char *argv[]) {
           while (Minlist[l][m].time < hist_time) {
             //時刻によって判断
             back_IN_num++;
-            delete_val = fx[l][In][back_IN_num];
+            if (fx[l][In][tmp_pointer].multiplicity < back_IN_num) {
+              tmp_pointer += 1;
+            }
+            delete_val = fx[l][In][tmp_pointer].value;
 
             // back_IN_num=2のとき、hist_timeの更新はこれ以上必要ない。
             if (back_IN_num >= search_limit) {
@@ -245,8 +232,10 @@ int main(int argc, char *argv[]) {
 
   cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  //ここまで時間測定
-  // cout << "search_limit:" << search_limit << "\n";
   cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
-  // cout << search_limit << "           " << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  struct rusage resource;
+  getrusage(RUSAGE_SELF, &resource);
+  printf("memory: %ld\n", resource.ru_maxrss);
+
   return 0;
 }

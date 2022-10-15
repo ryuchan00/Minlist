@@ -12,6 +12,10 @@
 // ./MHI4 database.txt queri.txt シード値　SWの数　Minhash.txt マルチセットの上限 出力ファイル名//
 // 元データの要素をランダムに組み合わせてデータベースを作る関数                                    //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/resource.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <array>
@@ -224,8 +228,10 @@ int main(int argc, char *argv[]) {
 
   cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  //ここまで時間測定
-  // cout << "search_limit:" << search_limit << "\n";
   cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
-  // cout << search_limit << "           " << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  struct rusage resource;
+  getrusage(RUSAGE_SELF, &resource);
+  printf("memory: %ld\n", resource.ru_maxrss);
+
   return 0;
 }
