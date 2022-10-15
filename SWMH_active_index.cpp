@@ -58,6 +58,16 @@ int main(int argc, char *argv[]) {
 
   vector<vector<vector<index>>> fx(num_of_hash);
   fx = active_index(num_of_hash, vm, multi, minhash);
+  for (int i = 0; i < num_of_hash; i++) {
+    for (int j = 0; j < vm; j++) {
+      // cout << fx[i][j].size() << endl;
+      for (int k = 0; k < fx[i][j].size(); k++) {
+        cout << "[" << fx[i][j][k].multiplicity << "," << fx[i][j][k].value << "]";
+      }
+      cout << endl;
+    }
+  }
+  return 0;
 
   ////////////////////////////////////////////////////////////////
 
@@ -87,7 +97,7 @@ int main(int argc, char *argv[]) {
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
 
-  vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm));
+  vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm,0));
   int tmp_pointer;
 #ifdef DEBUG
   std::ofstream ofs("output_array.txt");
@@ -105,6 +115,13 @@ int main(int argc, char *argv[]) {
       }
       double sum_length = 0;
       for (int l = 0; l < num_of_hash; l++) {
+        // ここにoutの処理が必要そう
+        if (fx[l][out][allocation_pointer[l][out]].multiplicity > histgram[out]) {
+          allocation_pointer[l][out] -= 1;
+          if (allocation_pointer[l][out] < 0 ) {
+            allocation_pointer[l][out] = 0;
+          }
+        }
         sum_length += Minlist[l].size();
         if (Minlist[l][0].time == t - w) {
           Minlist[l].erase(Minlist[l].begin());
@@ -120,10 +137,9 @@ int main(int argc, char *argv[]) {
             if (min > Minlist_value) {
               //最小値を調べる
               int label = Minlist[l][m].label;
-              // int value_check = fx[l][label][histgram[label]];
-              if (fx[l][m][allocation_pointer[l][label]].multiplicity > histgram[label]) {
-                allocation_pointer[l][label] -= 1;
-              }
+              // if (fx[l][m][allocation_pointer[l][label]].multiplicity > histgram[label]) {
+              //   allocation_pointer[l][label] -= 1;
+              // }
               int value_check = fx[l][label][allocation_pointer[l][label]].value;
 
               if (Minlist_value == value_check) {
@@ -154,8 +170,7 @@ int main(int argc, char *argv[]) {
     for (int l = 0; l < num_of_hash; l++) {
       if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity == histgram[In]) {
         allocation_pointer[l][In] += 1;
-        // tmp_pointer.multiplicity = fx[l][In][allocation_pointer[l][In] + 1].multiplicity;
-        tmp_pointer = allocation_pointer[l][In];
+        // tmp_pointer = allocation_pointer[l][In];
       }
       int in_value = fx[l][In][allocation_pointer[l][In]].value;  //現在入ってきた要素の値
 
@@ -164,6 +179,7 @@ int main(int argc, char *argv[]) {
       int m = Minlist[l].size() - 1;
 
       int back_IN_num = 0;  // 後方にあるhist_max_labelの要素数
+      tmp_pointer = 0;      // delete_val算出のためのpointer
       int pointer = 0;
       // 実はarは要素を1つしか持っていなくても成立する？
       // ar[In]の要素数はsearch_limit-1なのではないか？
