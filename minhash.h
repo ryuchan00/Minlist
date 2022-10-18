@@ -68,7 +68,26 @@ double strict_jaccard(std::vector<int> &set_a, std::vector<int> &set_b) {
 }
 
 // 近似Jaccard係数の算出
-int mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) {
+int mh(std::vector<int> &s, std::vector<std::vector<int>> &fx) {
+  int vm = fx.size();
+  std::vector<int> histgram(vm, 0);
+  int min = 999999;
+  int min_si;
+
+  for (int i = 0; i < s.size(); i++) {
+    histgram[s[i]] += 1;
+    int in_value = fx[s[i]][histgram[s[i]]];
+    if (in_value < min) {
+      min = in_value;
+      min_si = s[i];
+    }
+  }
+  return min_si;
+}
+
+
+// cwsの近似Jaccard係数の算出
+int cws_mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) {
   int vm = fx_a.size();
   std::vector<int> histgram(vm, 0);
   int min = 999999;

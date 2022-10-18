@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/resource.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #include <algorithm>
@@ -24,7 +25,7 @@
 #include "kyotsu.h"
 #include "minhash.h"
 
-// #define DEBUG
+#define DEBUG
 
 #define PERIOD (100000)
 using namespace std;
@@ -51,6 +52,20 @@ int main(int argc, char *argv[]) {
   int vm = vmw / multi;              //要素の種類数
 
   int search_limit = atoi(argv[5]);  // delete_val探索時の探索回数
+
+#ifdef DEBUG
+  /* 乱数SEED設定 */
+  struct timeval tv;                                                // 変数の宣言
+  gettimeofday(&tv, NULL);                                          // 現在の時刻を取得
+  srand((unsigned int)tv.tv_sec * ((unsigned int)tv.tv_usec + 1));  // 秒×μ秒 + 1
+  // srand((int)time(NULL));
+  int sample_t1 = rand() % dmax;
+  int sample_t2 = rand() % dmax;
+  vector<vector<int>> sampled_hash_list_t1(num_of_hash);
+  vector<vector<int>> sampled_hash_list_t2(num_of_hash);
+  vector<int> in_t1;
+  vector<int> in_t2;
+#endif
 
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
@@ -97,9 +112,7 @@ int main(int argc, char *argv[]) {
   //ここから時刻による更新
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
-#ifdef DEBUG
-  std::ofstream ofs("output_array.txt");
-#endif
+
   clock_t start = clock();  //ここから時間を測る
 
   while (t < dmax) {
@@ -155,8 +168,27 @@ int main(int argc, char *argv[]) {
     In = database[t];
     histgram[In]++;  //とりあえず先に入れておく方針
 
+#ifdef DEBUG
+    if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
+      in_t1.push_back(In);
+    }
+    if ((sample_t2 <= t) && (t < (sample_t2 + w))) {
+      in_t2.push_back(In);
+    }
+#endif
+
     for (int l = 0; l < num_of_hash; l++) {
       int in_value = fx[l][In][histgram[In]];  //現在入ってきた要素の値
+
+#ifdef DEBUG
+      // あらかじめサンプリングしたtのスライドウィンドゥの値をつくる
+      if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
+        sampled_hash_list_t1[l].push_back(in_value);
+      }
+      if ((sample_t2 <= t) && (t < (sample_t2 + w))) {
+        sampled_hash_list_t2[l].push_back(in_value);
+      }
+#endif
 
       int delete_val = 0;  // 1番目の値
 
@@ -214,9 +246,6 @@ int main(int argc, char *argv[]) {
         min_elem[l].value = in_value;
         min_elem[l].label = In;
       }
-#ifdef DEBUG
-      ofs << in_value << endl;
-#endif
     }
 
     ar[In][0] = t;
@@ -232,6 +261,21 @@ int main(int argc, char *argv[]) {
   struct rusage resource;
   getrusage(RUSAGE_SELF, &resource);
   printf("memory: %ld\n", resource.ru_maxrss);
+
+#ifdef DEBUG
+  // 近似Jaccard係数をハッシュ関数の数だけ求めてみる
+  double match_count = 0.0;
+
+  for (int i = 0; i < num_of_hash; i++) {
+    if (mh(in_t1, fx[i]) == mh(in_t2, fx[i])) {
+      match_count += 1;
+    }
+  }
+  cout << "近似jaccard係数: " << match_count / num_of_hash << endl;
+
+  // 厳密なJaccard係数を求める
+  cout << "厳密なjaccard係数: " << strict_jaccard(in_t1, in_t2) << endl;
+#endif
 
   return 0;
 }

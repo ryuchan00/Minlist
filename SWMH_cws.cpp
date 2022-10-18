@@ -188,7 +188,7 @@ int main(int argc, char *argv[]) {
     for (int l = 0; l < num_of_hash; l++) {
       int in_value = fx_a[l][In] + fx_b[l][histgram[In]] * vm;  // 現在入ってきた要素の値
 #ifdef DEBUG
-                                                                // あらかじめサンプリングしたtのスライドウィンドゥの値をつくる
+      // あらかじめサンプリングしたtのスライドウィンドゥの値をつくる
       if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
         sampled_hash_list_t1[l].push_back(in_value);
       }
@@ -261,7 +261,7 @@ int main(int argc, char *argv[]) {
   double match_count = 0.0;
 
   for (int i; i < num_of_hash; i++) {
-    if (mh(in_t1, fx_a[i], fx_b[i]) == mh(in_t2, fx_a[i], fx_b[i])) {
+    if (cws_mh(in_t1, fx_a[i], fx_b[i]) == cws_mh(in_t2, fx_a[i], fx_b[i])) {
       match_count += 1;
     }
   }
