@@ -85,7 +85,6 @@ int mh(std::vector<int> &s, std::vector<std::vector<int>> &fx) {
   return min_si;
 }
 
-
 // cwsの近似Jaccard係数の算出
 int cws_mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) {
   int vm = fx_a.size();
@@ -96,6 +95,30 @@ int cws_mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) 
   for (int i = 0; i < s.size(); i++) {
     histgram[s[i]] += 1;
     int in_value = fx_a[s[i]] + fx_b[histgram[s[i]]];
+    if (in_value < min) {
+      min = in_value;
+      min_si = s[i];
+    }
+  }
+  return min_si;
+}
+
+// active_indexの近似Jaccard係数の算出
+int active_index_mh(std::vector<int> &s, std::vector<std::vector<index>> &fx) {
+  int vm = fx.size();
+  std::vector<int> histgram(vm, 0);
+  int min = 999999;
+  int min_si;
+  std::vector<int> pointer(vm, 0);
+
+  for (int i = 0; i < s.size(); i++) {
+    int in = s[i];
+    histgram[in] += 1;
+    if (pointer[in] + 1 < fx[in].size() && fx[in][pointer[in] + 1].multiplicity == histgram[in]) {
+      pointer[in] += 1;
+    }
+
+    int in_value = fx[in][pointer[in]].value;
     if (in_value < min) {
       min = in_value;
       min_si = s[i];

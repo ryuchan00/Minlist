@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/resource.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 #include <algorithm>
@@ -53,21 +54,26 @@ int main(int argc, char *argv[]) {
 
   int search_limit = atoi(argv[5]);  // delete_val探索時の探索回数
 
+#ifdef DEBUG
+  /* 乱数SEED設定 */
+  struct timeval tv;                                                // 変数の宣言
+  gettimeofday(&tv, NULL);                                          // 現在の時刻を取得
+  // srand((unsigned int)tv.tv_sec * ((unsigned int)tv.tv_usec + 1));  // 秒×μ秒 + 1
+  srand(2);  // テストのためseed固定
+  // srand((int)time(NULL));
+  int sample_t1 = rand() % dmax;
+  int sample_t2 = rand() % dmax;
+  vector<vector<int>> sampled_hash_list_t1(num_of_hash);
+  vector<vector<int>> sampled_hash_list_t2(num_of_hash);
+  vector<int> in_t1;
+  vector<int> in_t2;
+#endif
+
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
 
   vector<vector<vector<index>>> fx(num_of_hash);
   fx = active_index(num_of_hash, vm, multi, minhash);
-  for (int i = 0; i < num_of_hash; i++) {
-    for (int j = 0; j < vm; j++) {
-      // cout << fx[i][j].size() << endl;
-      for (int k = 0; k < fx[i][j].size(); k++) {
-        cout << "[" << fx[i][j][k].multiplicity << "," << fx[i][j][k].value << "]";
-      }
-      cout << endl;
-    }
-  }
-  return 0;
 
   ////////////////////////////////////////////////////////////////
 
@@ -75,10 +81,7 @@ int main(int argc, char *argv[]) {
 
   vector<vector<contents>> Minlist(num_of_hash);  //残っている要素のリスト[ハッシュ関数][残ってる要素]
   vector<int> histgram(vm);                       // histgramは個数のみを持つ
-  // vector<deque<int>> t_histgram(vm);              //要素数0,初期値0
-  // const int t_histgram_limit = 2;                 // ヒストグラムの限界数
-  vector<std::array<int, 2>> ar(vm, {-1, -1});  // 固定長で試してみる
-  // vector<vector> でも固定長を定義できる
+  vector<std::array<int, 2>> ar(vm, {-1, -1});    // 固定長で試してみる
 
   vector<int> reset_count(num_of_hash, 0);
 
@@ -97,11 +100,8 @@ int main(int argc, char *argv[]) {
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
 
-  vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm,0));
+  vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm, 0));
   int tmp_pointer;
-#ifdef DEBUG
-  std::ofstream ofs("output_array.txt");
-#endif
   clock_t start = clock();  //ここから時間を測る
 
   while (t < dmax) {
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
         // ここにoutの処理が必要そう
         if (fx[l][out][allocation_pointer[l][out]].multiplicity > histgram[out]) {
           allocation_pointer[l][out] -= 1;
-          if (allocation_pointer[l][out] < 0 ) {
+          if (allocation_pointer[l][out] < 0) {
             allocation_pointer[l][out] = 0;
           }
         }
@@ -167,12 +167,30 @@ int main(int argc, char *argv[]) {
     In = database[t];
     histgram[In]++;  //とりあえず先に入れておく方針
 
+#ifdef DEBUG
+    if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
+      in_t1.push_back(In);
+    }
+    if ((sample_t2 <= t) && (t < (sample_t2 + w))) {
+      in_t2.push_back(In);
+    }
+#endif
+
     for (int l = 0; l < num_of_hash; l++) {
       if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity == histgram[In]) {
         allocation_pointer[l][In] += 1;
-        // tmp_pointer = allocation_pointer[l][In];
       }
       int in_value = fx[l][In][allocation_pointer[l][In]].value;  //現在入ってきた要素の値
+
+#ifdef DEBUG
+      // あらかじめサンプリングしたtのスライドウィンドゥの値をつくる
+      if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
+        sampled_hash_list_t1[l].push_back(in_value);
+      }
+      if ((sample_t2 <= t) && (t < (sample_t2 + w))) {
+        sampled_hash_list_t2[l].push_back(in_value);
+      }
+#endif
 
       int delete_val = 0;  // 1番目の値
 
@@ -234,9 +252,6 @@ int main(int argc, char *argv[]) {
         min_elem[l].value = in_value;
         min_elem[l].label = In;
       }
-#ifdef DEBUG
-      ofs << in_value << endl;
-#endif
     }
 
     ar[In][0] = t;
@@ -252,6 +267,20 @@ int main(int argc, char *argv[]) {
   struct rusage resource;
   getrusage(RUSAGE_SELF, &resource);
   printf("memory: %ld\n", resource.ru_maxrss);
+#ifdef DEBUG
+  // 近似Jaccard係数をハッシュ関数の数だけ求めてみる
+  double match_count = 0.0;
+
+  for (int i = 0; i < num_of_hash; i++) {
+    if (active_index_mh(in_t1, fx[i]) == active_index_mh(in_t2, fx[i])) {
+      match_count += 1;
+    }
+  }
+  cout << "近似jaccard係数: " << match_count / num_of_hash << endl;
+
+  // 厳密なJaccard係数を求める
+  cout << "厳密なjaccard係数: " << strict_jaccard(in_t1, in_t2) << endl;
+#endif
 
   return 0;
 }

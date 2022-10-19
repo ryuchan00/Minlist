@@ -25,7 +25,7 @@
 #include "kyotsu.h"
 #include "minhash.h"
 
-#define DEBUG
+// #define DEBUG
 
 #define PERIOD (100000)
 using namespace std;
@@ -57,7 +57,8 @@ int main(int argc, char *argv[]) {
   /* 乱数SEED設定 */
   struct timeval tv;                                                // 変数の宣言
   gettimeofday(&tv, NULL);                                          // 現在の時刻を取得
-  srand((unsigned int)tv.tv_sec * ((unsigned int)tv.tv_usec + 1));  // 秒×μ秒 + 1
+  // srand((unsigned int)tv.tv_sec * ((unsigned int)tv.tv_usec + 1));  // 秒×μ秒 + 1
+  srand(2);  // テストのためseed固定
   // srand((int)time(NULL));
   int sample_t1 = rand() % dmax;
   int sample_t2 = rand() % dmax;
