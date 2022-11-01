@@ -137,9 +137,6 @@ int main(int argc, char *argv[]) {
             if (min > Minlist_value) {
               //最小値を調べる
               int label = Minlist[l][m].label;
-              // if (fx[l][m][allocation_pointer[l][label]].multiplicity > histgram[label]) {
-              //   allocation_pointer[l][label] -= 1;
-              // }
               int value_check = fx[l][label][allocation_pointer[l][label]].value;
 
               if (Minlist_value == value_check) {
