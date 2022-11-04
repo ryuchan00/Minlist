@@ -56,8 +56,8 @@ int main(int argc, char *argv[]) {
 
 #ifdef DEBUG
   /* 乱数SEED設定 */
-  struct timeval tv;                                                // 変数の宣言
-  gettimeofday(&tv, NULL);                                          // 現在の時刻を取得
+  struct timeval tv;        // 変数の宣言
+  gettimeofday(&tv, NULL);  // 現在の時刻を取得
   // srand((unsigned int)tv.tv_sec * ((unsigned int)tv.tv_usec + 1));  // 秒×μ秒 + 1
   srand(2);  // テストのためseed固定
   // srand((int)time(NULL));
@@ -115,7 +115,6 @@ int main(int argc, char *argv[]) {
       }
       double sum_length = 0;
       for (int l = 0; l < num_of_hash; l++) {
-        // ここにoutの処理が必要そう
         if (fx[l][out][allocation_pointer[l][out]].multiplicity > histgram[out]) {
           allocation_pointer[l][out] -= 1;
           if (allocation_pointer[l][out] < 0) {
@@ -174,6 +173,7 @@ int main(int argc, char *argv[]) {
 #endif
 
     for (int l = 0; l < num_of_hash; l++) {
+      // allocation_pointerの次の要素が存在しているか確認している
       if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity == histgram[In]) {
         allocation_pointer[l][In] += 1;
       }
