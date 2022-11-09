@@ -23,9 +23,9 @@
 #include <array>
 
 #include "contents.h"
+#include "count_min.cpp"
 #include "kyotsu.h"
 #include "minhash.h"
-#include "count_min.cpp"
 
 // #define DEBUG
 
@@ -97,6 +97,14 @@ int main(int argc, char *argv[]) {
   int same_count = 0;
   int another_count = 0;
   int out_count = 0;
+
+  ////////////////////////////////////////////////////////////////
+
+  int c1 = 4;
+  int c2 = 20;
+  /*COUNT-MIN用のテーブルを作成する*/
+  count_min count_min(c1, c2);
+
   // ここから時刻による更新
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
