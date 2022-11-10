@@ -118,16 +118,22 @@ int main(int argc, char *argv[]) {
     if (t >= w) {
       int out = database[t - w];
       histgram[out]--;
+      count_min.add_count(out, -1);
       if (ar[out][0] == (t - w)) {
         ar[out][0] = ar[out][1];
         ar[out][1] = -1;
       }
       double sum_length = 0;
       for (int l = 0; l < num_of_hash; l++) {
-        if (fx[l][out][allocation_pointer[l][out]].multiplicity > histgram[out]) {
-          allocation_pointer[l][out] -= 1;
-          if (allocation_pointer[l][out] < 0) {
-            allocation_pointer[l][out] = 0;
+        // if (fx[l][out][allocation_pointer[l][out]].multiplicity > histgram[out]) {
+        if (fx[l][out][allocation_pointer[l][out]].multiplicity > count_min.get_freq(out)) {
+          while (fx[l][out][allocation_pointer[l][out]].multiplicity > count_min.get_freq(out)) {
+            // cout << l << " " << out << " " << fx[l][out][allocation_pointer[l][out]].multiplicity << " " << count_min.get_freq(out) << endl;
+            allocation_pointer[l][out] -= 1;
+            if (allocation_pointer[l][out] < 0) {
+              allocation_pointer[l][out] = 0;
+              break;
+            }
           }
         }
         sum_length += Minlist[l].size();
@@ -171,6 +177,7 @@ int main(int argc, char *argv[]) {
     //入っていく処理////////////////
     In = database[t];
     histgram[In]++;  //とりあえず先に入れておく方針
+    count_min.add_count(In, 1);
 
 #ifdef DEBUG
     if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
@@ -183,10 +190,18 @@ int main(int argc, char *argv[]) {
 
     for (int l = 0; l < num_of_hash; l++) {
       // allocation_pointerの次の要素が存在しているか確認している
-      if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity == histgram[In]) {
-        allocation_pointer[l][In] += 1;
+      // if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity == histgram[In]) {
+      if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= count_min.get_freq(In)) {
+        while (fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= count_min.get_freq(In)) {
+          // cout << l << " " << In << " " << fx[l][In][allocation_pointer[l][In] + 1].multiplicity << " " << count_min.get_freq(In) << endl;
+          allocation_pointer[l][In] += 1;
+          if (allocation_pointer[l][In] + 1 >= fx[l][In].size()) {
+            allocation_pointer[l][In] = fx[l][In].size() - 1;
+            break;
+          }
+        }
       }
-      int in_value = fx[l][In][allocation_pointer[l][In]].value;  //現在入ってきた要素の値
+      int in_value = fx[l][In][allocation_pointer[l][In]].value;  // 現在入ってきた要素の値
 
 #ifdef DEBUG
       // あらかじめサンプリングしたtのスライドウィンドゥの値をつくる

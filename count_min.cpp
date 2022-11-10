@@ -16,7 +16,8 @@ class count_min {
   int count(int i, int j);
   int get_freq(int j);
   int hash(int i, int j);
-  void set_count(int i, int j, int value);
+  void set_count(int j, int value);
+  void add_count(int j, int value);
 };
 
 count_min::count_min(int c1, int c2) : m_count_min_table({}) {
@@ -40,7 +41,7 @@ vector<vector<int>> count_min::count_min_table() const {
 }
 
 int count_min::count(int i, int j) {
-  return m_count_min_table[i][m_count_min_table[i][j]];
+  return m_count_min_table[i][hash(i, j)];
 }
 
 int count_min::get_freq(int j) {
@@ -59,8 +60,16 @@ int count_min::hash(int i, int j) {
   return get_rand_mt() % m_count_min_table.size();
 }
 
-void count_min::set_count(int i, int j, int value) {
-  m_count_min_table[i][m_count_min_table[i][j]] = value;
+void count_min::set_count(int j, int value) {
+  for (int i = 0; i < m_count_min_table.size(); i++) {
+    m_count_min_table[i][hash(i, j)] = value;
+  }
+}
+
+void count_min::add_count(int j, int value) {
+  for (int i = 0; i < m_count_min_table.size(); i++) {
+    m_count_min_table[i][hash(i, j)] = m_count_min_table[i][hash(i, j)] + value;
+  }
 }
 
 // int main() {
