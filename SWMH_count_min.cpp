@@ -145,6 +145,12 @@ int main(int argc, char *argv[]) {
           // 最小値と同じラベルがストリームデータから出ていく時
           int min = 5000000;
           int m_label;
+
+          // 補正作業を行う
+          if (min_elem[l].value < fx[l][out][allocation_pointer[l][out]].value) {
+            min_elem[l].value = fx[l][out][allocation_pointer[l][out]].value;
+            min_elem[l].multiplicity = fx[l][out][allocation_pointer[l][out]].multiplicity;
+          }
           for (int m = 0; m < Minlist[l].size(); m++) {
             int Minlist_value = Minlist[l][m].value;
 
@@ -178,6 +184,7 @@ int main(int argc, char *argv[]) {
     In = database[t];
     histgram[In]++;  //とりあえず先に入れておく方針
     count_min.add_count(In, 1);
+    int frequency = count_min.get_freq(In);
 
 #ifdef DEBUG
     if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
@@ -192,7 +199,7 @@ int main(int argc, char *argv[]) {
       // allocation_pointerの次の要素が存在しているか確認している
       // if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity == histgram[In]) {
       if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= count_min.get_freq(In)) {
-        while (fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= count_min.get_freq(In)) {
+        while (fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= frequency) {
           // cout << l << " " << In << " " << fx[l][In][allocation_pointer[l][In] + 1].multiplicity << " " << count_min.get_freq(In) << endl;
           allocation_pointer[l][In] += 1;
           if (allocation_pointer[l][In] + 1 >= fx[l][In].size()) {
@@ -256,7 +263,7 @@ int main(int argc, char *argv[]) {
             }
           }
           if (Minlist[l][m].value >= delete_val) {
-            //値を比べる
+            // 値を比べる
             Minlist[l].erase(Minlist[l].begin() + m);
             another_count++;
           }
@@ -266,12 +273,14 @@ int main(int argc, char *argv[]) {
       a.label = In;
       a.time = t;
       a.value = in_value;
+      a.multiplicity = frequency;
       Minlist[l].push_back(a);
 
       if (min_elem[l].value > in_value) {
         // 最小値の更新
         min_elem[l].value = in_value;
         min_elem[l].label = In;
+        min_elem[l].multiplicity = frequency;
       }
     }
 

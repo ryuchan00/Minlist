@@ -2,6 +2,7 @@ struct contents{
     int label;
     int value;
     int time;
+    int multiplicity;   // 入ってきたときの多重度
 };
 
 struct ranking

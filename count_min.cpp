@@ -68,7 +68,8 @@ void count_min::set_count(int j, int value) {
 
 void count_min::add_count(int j, int value) {
   for (int i = 0; i < m_count_min_table.size(); i++) {
-    m_count_min_table[i][hash(i, j)] = m_count_min_table[i][hash(i, j)] + value;
+    int hash = count_min::hash(i, j);
+    m_count_min_table[i][hash] = m_count_min_table[i][hash] + value;
   }
 }
 
