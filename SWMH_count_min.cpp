@@ -24,6 +24,7 @@
 
 #include "contents.h"
 #include "count_min.cpp"
+#include "histgram.cpp"
 #include "kyotsu.h"
 #include "minhash.h"
 
@@ -81,7 +82,7 @@ int main(int argc, char *argv[]) {
   /*残っている要素のリストとスライディングウインドウに含まれている数のヒストグラムの作成*/
 
   vector<vector<contents>> Minlist(num_of_hash);  // 残っている要素のリスト[ハッシュ関数][残ってる要素]
-  vector<int> histgram(vm);                       // histgramは個数のみを持つ
+  // vector<int> histgram(vm);                       // histgramは個数のみを持つ
   vector<std::array<int, 2>> ar(vm, {-1, -1});    // 固定長で試してみる
 
   vector<int> reset_count(num_of_hash, 0);
@@ -103,7 +104,9 @@ int main(int argc, char *argv[]) {
   int c1 = 4;
   int c2 = 20;
   /*COUNT-MIN用のテーブルを作成する*/
-  count_min count_min(c1, c2);
+  // count_min frequency_object(c1, c2);
+
+  histgram frequency_object(vm);
 
   // ここから時刻による更新
 
@@ -117,18 +120,16 @@ int main(int argc, char *argv[]) {
     // 出ていく処理
     if (t >= w) {
       int out = database[t - w];
-      histgram[out]--;
-      count_min.add_count(out, -1);
+      // histgram[out]--;
+      add_count(frequency_object, out, -1);
       if (ar[out][0] == (t - w)) {
         ar[out][0] = ar[out][1];
         ar[out][1] = -1;
       }
       double sum_length = 0;
       for (int l = 0; l < num_of_hash; l++) {
-        // if (fx[l][out][allocation_pointer[l][out]].multiplicity > histgram[out]) {
-        if (fx[l][out][allocation_pointer[l][out]].multiplicity > count_min.get_freq(out)) {
-          while (fx[l][out][allocation_pointer[l][out]].multiplicity > count_min.get_freq(out)) {
-            // cout << l << " " << out << " " << fx[l][out][allocation_pointer[l][out]].multiplicity << " " << count_min.get_freq(out) << endl;
+        if (fx[l][out][allocation_pointer[l][out]].multiplicity > get_freq(frequency_object, out)) {
+          while (fx[l][out][allocation_pointer[l][out]].multiplicity > get_freq(frequency_object, out)) {
             allocation_pointer[l][out] -= 1;
             if (allocation_pointer[l][out] < 0) {
               allocation_pointer[l][out] = 0;
@@ -142,15 +143,17 @@ int main(int argc, char *argv[]) {
           out_count++;
         }
         if (out == min_elem[l].label) {
+          for (int m = 0; m < Minlist[l].size(); m++) {
+            // 補正作業を行う
+            if (Minlist[l][m].value < fx[l][out][allocation_pointer[l][out]].value) {
+              Minlist[l][m].value = fx[l][out][allocation_pointer[l][out]].value;
+            }
+          }
+
           // 最小値と同じラベルがストリームデータから出ていく時
           int min = 5000000;
           int m_label;
 
-          // 補正作業を行う
-          if (min_elem[l].value < fx[l][out][allocation_pointer[l][out]].value) {
-            min_elem[l].value = fx[l][out][allocation_pointer[l][out]].value;
-            min_elem[l].multiplicity = fx[l][out][allocation_pointer[l][out]].multiplicity;
-          }
           for (int m = 0; m < Minlist[l].size(); m++) {
             int Minlist_value = Minlist[l][m].value;
 
@@ -182,9 +185,10 @@ int main(int argc, char *argv[]) {
     }
     //入っていく処理////////////////
     In = database[t];
-    histgram[In]++;  //とりあえず先に入れておく方針
-    count_min.add_count(In, 1);
-    int frequency = count_min.get_freq(In);
+    // histgram[In]++;  //とりあえず先に入れておく方針
+    // frequency_object.add_count(In, 1);
+    add_count(frequency_object, In, 1);
+    int frequency = get_freq(frequency_object, In);
 
 #ifdef DEBUG
     if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
@@ -198,9 +202,9 @@ int main(int argc, char *argv[]) {
     for (int l = 0; l < num_of_hash; l++) {
       // allocation_pointerの次の要素が存在しているか確認している
       // if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity == histgram[In]) {
-      if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= count_min.get_freq(In)) {
+      if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= get_freq(frequency_object, In)) {
         while (fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= frequency) {
-          // cout << l << " " << In << " " << fx[l][In][allocation_pointer[l][In] + 1].multiplicity << " " << count_min.get_freq(In) << endl;
+          // cout << l << " " << In << " " << fx[l][In][allocation_pointer[l][In] + 1].multiplicity << " " << frequency_object.get_freq(In) << endl;
           allocation_pointer[l][In] += 1;
           if (allocation_pointer[l][In] + 1 >= fx[l][In].size()) {
             allocation_pointer[l][In] = fx[l][In].size() - 1;
@@ -293,7 +297,7 @@ int main(int argc, char *argv[]) {
 
   cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  // ここまで時間測定
-  cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  cout << (double)(end - start) / CLOCKS_PER_SEC << " sec" << endl;
   struct rusage resource;
   getrusage(RUSAGE_SELF, &resource);
   printf("memory: %ld\n", resource.ru_maxrss);

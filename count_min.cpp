@@ -6,10 +6,10 @@
 using namespace std;
 
 class count_min {
-  vector<vector<int>> m_count_min_table;
   vector<vector<int>> m_count;
 
  public:
+  vector<vector<int>> m_count_min_table;
   count_min(int c1, int c2);
 
   vector<vector<int>> count_min_table() const;
@@ -73,6 +73,15 @@ void count_min::add_count(int j, int value) {
   }
 }
 
+int get_freq(count_min &count_min, int j) {
+  return count_min.get_freq(j);
+}
+
+void add_count(count_min &count_min, int j, int value) {
+  count_min.add_count(j, value);
+}
+
+// 動作確認用のmain関数
 // int main() {
 //   count_min table_a(10, 10);
 //   vector<vector<int>> a = table_a.count_min_table();
