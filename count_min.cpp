@@ -5,8 +5,14 @@
 
 using namespace std;
 
+#define LONG_PRIME 4294967311l
+
 class count_min {
   vector<vector<int>> m_count;
+
+  // array of hash values for a particular item
+  // contains two element arrays {aj,bj}
+  int **hashes;
 
  public:
   vector<vector<int>> m_count_min_table;
@@ -18,6 +24,8 @@ class count_min {
   int hash(int i, int j);
   void set_count(int j, int value);
   void add_count(int j, int value);
+  // generate "new" aj,bj
+  void genajbj(int **hashes, int i);
 };
 
 count_min::count_min(int c1, int c2) : m_count_min_table({}) {
@@ -28,12 +36,26 @@ count_min::count_min(int c1, int c2) : m_count_min_table({}) {
       v.push_back(0);
       count.push_back(0);
     }
-    // random_device get_rand_dev;
-    // mt19937 get_rand_mt(get_rand_dev());  // seedに乱数を指定
-    // shuffle(v.begin(), v.end(), get_rand_mt);
     m_count_min_table.push_back(v);
     m_count.push_back(count);
   }
+
+  // initialize d pairwise independent hashes
+  srand(time(NULL));
+  hashes = new int *[c1];
+  for (int i = 0; i < c1; i++) {
+    hashes[i] = new int[2];
+    genajbj(hashes, i);
+  }
+  // for (int i = 0; i < c1; i++) {
+  //   cout << hashes[i][0] << " " << hashes[i][1] << endl;
+  // }
+}
+
+// generates aj,bj from field Z_p for use in hashing
+void count_min::genajbj(int **hashes, int i) {
+  hashes[i][0] = int(float(rand()) * float(LONG_PRIME) / float(RAND_MAX) + 1);
+  hashes[i][1] = int(float(rand()) * float(LONG_PRIME) / float(RAND_MAX) + 1);
 }
 
 vector<vector<int>> count_min::count_min_table() const {
@@ -41,7 +63,9 @@ vector<vector<int>> count_min::count_min_table() const {
 }
 
 int count_min::count(int i, int j) {
-  return m_count_min_table[i][hash(i, j)];
+  unsigned int hashval = 0;
+  hashval = ((long)hashes[i][0] * j + hashes[i][1]) % LONG_PRIME % m_count_min_table[0].size();
+  return m_count_min_table[i][hashval];
 }
 
 int count_min::get_freq(int j) {
@@ -55,21 +79,13 @@ int count_min::get_freq(int j) {
   return min;
 }
 
-int count_min::hash(int i, int j) {
-  mt19937 get_rand_mt(i * m_count_min_table.size() + j);  // seedを固定
-  return get_rand_mt() % m_count_min_table.size();
-}
-
-void count_min::set_count(int j, int value) {
-  for (int i = 0; i < m_count_min_table.size(); i++) {
-    m_count_min_table[i][hash(i, j)] = value;
-  }
-}
-
 void count_min::add_count(int j, int value) {
+  unsigned int hashval = 0;
+
   for (int i = 0; i < m_count_min_table.size(); i++) {
-    int hash = count_min::hash(i, j);
-    m_count_min_table[i][hash] = m_count_min_table[i][hash] + value;
+    // int hash = count_min::hash(i, j);
+    hashval = ((long)hashes[i][0] * j + hashes[i][1]) % LONG_PRIME % m_count_min_table[0].size();
+    m_count_min_table[i][hashval] = m_count_min_table[i][hashval] + value;
   }
 }
 

@@ -101,12 +101,12 @@ int main(int argc, char *argv[]) {
 
   ////////////////////////////////////////////////////////////////
 
-  int c1 = 4;
+  int c1 = 16;
   int c2 = 20;
   /*COUNT-MIN用のテーブルを作成する*/
-  // count_min frequency_object(c1, c2);
+  count_min frequency_object(c1, c2);
 
-  histgram frequency_object(vm);
+  // histgram frequency_object(vm);
 
   // ここから時刻による更新
 
@@ -122,14 +122,15 @@ int main(int argc, char *argv[]) {
       int out = database[t - w];
       // histgram[out]--;
       add_count(frequency_object, out, -1);
+      int frequency = get_freq(frequency_object, out);
       if (ar[out][0] == (t - w)) {
         ar[out][0] = ar[out][1];
         ar[out][1] = -1;
       }
       double sum_length = 0;
       for (int l = 0; l < num_of_hash; l++) {
-        if (fx[l][out][allocation_pointer[l][out]].multiplicity > get_freq(frequency_object, out)) {
-          while (fx[l][out][allocation_pointer[l][out]].multiplicity > get_freq(frequency_object, out)) {
+        if (fx[l][out][allocation_pointer[l][out]].multiplicity > frequency) {
+          while (fx[l][out][allocation_pointer[l][out]].multiplicity > frequency) {
             allocation_pointer[l][out] -= 1;
             if (allocation_pointer[l][out] < 0) {
               allocation_pointer[l][out] = 0;
@@ -202,8 +203,9 @@ int main(int argc, char *argv[]) {
     for (int l = 0; l < num_of_hash; l++) {
       // allocation_pointerの次の要素が存在しているか確認している
       // if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity == histgram[In]) {
-      if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= get_freq(frequency_object, In)) {
-        while (fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= frequency) {
+      if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= frequency) {
+        // 不連続を考慮する
+        while (fx[l][In][allocation_pointer[l][In] + 1].multiplicity < frequency) {
           // cout << l << " " << In << " " << fx[l][In][allocation_pointer[l][In] + 1].multiplicity << " " << frequency_object.get_freq(In) << endl;
           allocation_pointer[l][In] += 1;
           if (allocation_pointer[l][In] + 1 >= fx[l][In].size()) {
