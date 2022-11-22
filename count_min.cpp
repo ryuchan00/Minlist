@@ -5,9 +5,9 @@
 
 using namespace std;
 
-#define LONG_PRIME 4294967311l
+#define PRIME 99991
 
-class count_min {
+class CountMinSketch {
   vector<vector<int>> m_count;
 
   // array of hash values for a particular item
@@ -16,19 +16,18 @@ class count_min {
 
  public:
   vector<vector<int>> m_count_min_table;
-  count_min(int c1, int c2);
+  CountMinSketch(int c1, int c2);
 
   vector<vector<int>> count_min_table() const;
   int count(int i, int j);
   int get_freq(int j);
   int hash(int i, int j);
-  void set_count(int j, int value);
   void add_count(int j, int value);
   // generate "new" aj,bj
   void genajbj(int **hashes, int i);
 };
 
-count_min::count_min(int c1, int c2) : m_count_min_table({}) {
+CountMinSketch::CountMinSketch(int c1, int c2) : m_count_min_table({}) {
   for (int i = 0; i < c1; i++) {
     vector<int> v;
     vector<int> count;
@@ -47,28 +46,25 @@ count_min::count_min(int c1, int c2) : m_count_min_table({}) {
     hashes[i] = new int[2];
     genajbj(hashes, i);
   }
-  // for (int i = 0; i < c1; i++) {
-  //   cout << hashes[i][0] << " " << hashes[i][1] << endl;
-  // }
 }
 
 // generates aj,bj from field Z_p for use in hashing
-void count_min::genajbj(int **hashes, int i) {
-  hashes[i][0] = int(float(rand()) * float(LONG_PRIME) / float(RAND_MAX) + 1);
-  hashes[i][1] = int(float(rand()) * float(LONG_PRIME) / float(RAND_MAX) + 1);
+void CountMinSketch::genajbj(int **hashes, int i) {
+  hashes[i][0] = int(float(rand()) * float(PRIME) / float(RAND_MAX) + 1);
+  hashes[i][1] = int(float(rand()) * float(PRIME) / float(RAND_MAX) + 1);
 }
 
-vector<vector<int>> count_min::count_min_table() const {
+vector<vector<int>> CountMinSketch::count_min_table() const {
   return m_count_min_table;
 }
 
-int count_min::count(int i, int j) {
+int CountMinSketch::count(int i, int j) {
   unsigned int hashval = 0;
-  hashval = ((long)hashes[i][0] * j + hashes[i][1]) % LONG_PRIME % m_count_min_table[0].size();
+  hashval = ((long)hashes[i][0] * j + hashes[i][1]) % PRIME % m_count_min_table[0].size();
   return m_count_min_table[i][hashval];
 }
 
-int count_min::get_freq(int j) {
+int CountMinSketch::get_freq(int j) {
   int min = 1000000000;
   for (int i = 0; i < m_count_min_table.size(); i++) {
     int freq = count(i, j);
@@ -79,21 +75,20 @@ int count_min::get_freq(int j) {
   return min;
 }
 
-void count_min::add_count(int j, int value) {
+void CountMinSketch::add_count(int j, int value) {
   unsigned int hashval = 0;
 
   for (int i = 0; i < m_count_min_table.size(); i++) {
-    // int hash = count_min::hash(i, j);
-    hashval = ((long)hashes[i][0] * j + hashes[i][1]) % LONG_PRIME % m_count_min_table[0].size();
+    hashval = ((long)hashes[i][0] * j + hashes[i][1]) % PRIME % m_count_min_table[0].size();
     m_count_min_table[i][hashval] = m_count_min_table[i][hashval] + value;
   }
 }
 
-int get_freq(count_min &count_min, int j) {
+int get_freq(CountMinSketch &count_min, int j) {
   return count_min.get_freq(j);
 }
 
-void add_count(count_min &count_min, int j, int value) {
+void add_count(CountMinSketch &count_min, int j, int value) {
   count_min.add_count(j, value);
 }
 

@@ -73,17 +73,17 @@ int mh(std::vector<int> &s, std::vector<std::vector<int>> &fx) {
   int vm = fx.size();
   std::vector<int> histgram(vm, 0);
   int min = 999999;
-  int min_si;
+  int min_s_i;
 
   for (int i = 0; i < s.size(); i++) {
     histgram[s[i]] += 1;
     int in_value = fx[s[i]][histgram[s[i]]];
     if (in_value < min) {
       min = in_value;
-      min_si = s[i];
+      min_s_i = s[i];
     }
   }
-  return min_si;
+  return min_s_i;
 }
 
 // cwsの近似Jaccard係数の算出
@@ -91,17 +91,17 @@ int cws_mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) 
   int vm = fx_a.size();
   std::vector<int> histgram(vm, 0);
   int min = 999999;
-  int min_si;
+  int min_s_i;
 
   for (int i = 0; i < s.size(); i++) {
     histgram[s[i]] += 1;
     int in_value = fx_a[s[i]] + fx_b[histgram[s[i]]];
     if (in_value < min) {
       min = in_value;
-      min_si = s[i];
+      min_s_i = s[i];
     }
   }
-  return min_si;
+  return min_s_i;
 }
 
 // active_indexの近似Jaccard係数の算出
@@ -109,7 +109,7 @@ int active_index_mh(std::vector<int> &s, std::vector<std::vector<index>> &fx) {
   int vm = fx.size();
   std::vector<int> histgram(vm, 0);
   int min = 999999;
-  int min_si;
+  int min_s_i;
   std::vector<int> pointer(vm, 0);
 
   for (int i = 0; i < s.size(); i++) {
@@ -122,10 +122,10 @@ int active_index_mh(std::vector<int> &s, std::vector<std::vector<index>> &fx) {
     int in_value = fx[in][pointer[in]].value;
     if (in_value < min) {
       min = in_value;
-      min_si = s[i];
+      min_s_i = s[i];
     }
   }
-  return min_si;
+  return min_s_i;
 }
 
 std::vector<std::vector<std::vector<index>>> active_index(int &num_of_hash, int &vm, int &multi, std::vector<std::vector<int>> &minhash) {

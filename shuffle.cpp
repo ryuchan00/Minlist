@@ -5,6 +5,7 @@
 
 using namespace std;
 
+// mt19937の実験をしてみる
 int main(int argc, char* argv[]) {
   std::vector<int> vec(3, 0);
   vec = {1, 2, 3};

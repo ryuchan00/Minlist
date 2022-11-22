@@ -53,23 +53,7 @@ int main(int argc, char *argv[]) {
   int vmw = minhash[0].size();       // 要素種類数 × 多重度の数
   int multi = atoi(argv[4]);         // wの中の要素の数の上限
   int vm = vmw / multi;              // 要素の種類数
-
   int search_limit = atoi(argv[5]);  // delete_val探索時の探索回数
-
-#ifdef DEBUG
-  /* 乱数SEED設定 */
-  struct timeval tv;        // 変数の宣言
-  gettimeofday(&tv, NULL);  // 現在の時刻を取得
-  // srand((unsigned int)tv.tv_sec * ((unsigned int)tv.tv_usec + 1));  // 秒×μ秒 + 1
-  srand(2);  // テストのためseed固定
-  // srand((int)time(NULL));
-  int sample_t1 = rand() % dmax;
-  int sample_t2 = rand() % dmax;
-  vector<vector<int>> sampled_hash_list_t1(num_of_hash);
-  vector<vector<int>> sampled_hash_list_t2(num_of_hash);
-  vector<int> in_t1;
-  vector<int> in_t2;
-#endif
 
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
@@ -82,13 +66,10 @@ int main(int argc, char *argv[]) {
   /*残っている要素のリストとスライディングウインドウに含まれている数のヒストグラムの作成*/
 
   vector<vector<contents>> Minlist(num_of_hash);  // 残っている要素のリスト[ハッシュ関数][残ってる要素]
-  // vector<int> histgram(vm);                       // histgramは個数のみを持つ
   vector<std::array<int, 2>> ar(vm, {-1, -1});    // 固定長で試してみる
-
   vector<int> reset_count(num_of_hash, 0);
 
   int In;  //データストリームに入ってくる一番新しい要素
-
   // 最小値
   struct contents a;
   a.label = 99999;
@@ -104,9 +85,9 @@ int main(int argc, char *argv[]) {
   int c1 = 16;
   int c2 = 20;
   /*COUNT-MIN用のテーブルを作成する*/
-  count_min frequency_object(c1, c2);
+  // CountMinSketch frequency_object(c1, c2);
 
-  // histgram frequency_object(vm);
+  histgram frequency_object(vm);
 
   // ここから時刻による更新
 
@@ -120,7 +101,6 @@ int main(int argc, char *argv[]) {
     // 出ていく処理
     if (t >= w) {
       int out = database[t - w];
-      // histgram[out]--;
       add_count(frequency_object, out, -1);
       int frequency = get_freq(frequency_object, out);
       if (ar[out][0] == (t - w)) {
@@ -129,8 +109,10 @@ int main(int argc, char *argv[]) {
       }
       double sum_length = 0;
       for (int l = 0; l < num_of_hash; l++) {
+        // allocation_pointerを移動する
         if (fx[l][out][allocation_pointer[l][out]].multiplicity > frequency) {
           while (fx[l][out][allocation_pointer[l][out]].multiplicity > frequency) {
+            // 不連続を考慮する
             allocation_pointer[l][out] -= 1;
             if (allocation_pointer[l][out] < 0) {
               allocation_pointer[l][out] = 0;
@@ -145,7 +127,7 @@ int main(int argc, char *argv[]) {
         }
         if (out == min_elem[l].label) {
           for (int m = 0; m < Minlist[l].size(); m++) {
-            // 補正作業を行う
+            // COUNT-MINにより不連続になってしまった頻度のため，Minlistの補正作業を行う
             if (Minlist[l][m].value < fx[l][out][allocation_pointer[l][out]].value) {
               Minlist[l][m].value = fx[l][out][allocation_pointer[l][out]].value;
             }
@@ -186,27 +168,14 @@ int main(int argc, char *argv[]) {
     }
     //入っていく処理////////////////
     In = database[t];
-    // histgram[In]++;  //とりあえず先に入れておく方針
-    // frequency_object.add_count(In, 1);
     add_count(frequency_object, In, 1);
     int frequency = get_freq(frequency_object, In);
 
-#ifdef DEBUG
-    if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
-      in_t1.push_back(In);
-    }
-    if ((sample_t2 <= t) && (t < (sample_t2 + w))) {
-      in_t2.push_back(In);
-    }
-#endif
-
     for (int l = 0; l < num_of_hash; l++) {
       // allocation_pointerの次の要素が存在しているか確認している
-      // if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity == histgram[In]) {
       if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= frequency) {
-        // 不連続を考慮する
         while (fx[l][In][allocation_pointer[l][In] + 1].multiplicity < frequency) {
-          // cout << l << " " << In << " " << fx[l][In][allocation_pointer[l][In] + 1].multiplicity << " " << frequency_object.get_freq(In) << endl;
+          // 不連続を考慮する
           allocation_pointer[l][In] += 1;
           if (allocation_pointer[l][In] + 1 >= fx[l][In].size()) {
             allocation_pointer[l][In] = fx[l][In].size() - 1;
@@ -215,30 +184,13 @@ int main(int argc, char *argv[]) {
         }
       }
       int in_value = fx[l][In][allocation_pointer[l][In]].value;  // 現在入ってきた要素の値
-
-#ifdef DEBUG
-      // あらかじめサンプリングしたtのスライドウィンドゥの値をつくる
-      if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
-        sampled_hash_list_t1[l].push_back(in_value);
-      }
-      if ((sample_t2 <= t) && (t < (sample_t2 + w))) {
-        sampled_hash_list_t2[l].push_back(in_value);
-      }
-#endif
-
-      int delete_val = 0;  // 1番目の値
-
+      int delete_val = 0;                                         // 1番目の値
       int m = Minlist[l].size() - 1;
-
       int back_IN_num = 0;  // 後方にあるhist_max_labelの要素数
       tmp_pointer = 0;      // delete_val算出のためのpointer
       int pointer = 0;
-      // 実はarは要素を1つしか持っていなくても成立する？
-      // ar[In]の要素数はsearch_limit-1なのではないか？
-      // ar[In]の型はintでよさそう
       int hist_time = t;
 
-      // ar[In][pointer]の要素数が1の時は、hist_time=-1を代入しておけば余計なループが省かれそう
       while (m >= 0) {
         // Minlistのスキャン
         if (Minlist[l][m].label == In) {
@@ -303,20 +255,5 @@ int main(int argc, char *argv[]) {
   struct rusage resource;
   getrusage(RUSAGE_SELF, &resource);
   printf("memory: %ld\n", resource.ru_maxrss);
-#ifdef DEBUG
-  // 近似Jaccard係数をハッシュ関数の数だけ求めてみる
-  double match_count = 0.0;
-
-  for (int i = 0; i < num_of_hash; i++) {
-    if (active_index_mh(in_t1, fx[i]) == active_index_mh(in_t2, fx[i])) {
-      match_count += 1;
-    }
-  }
-  cout << "近似jaccard係数: " << match_count / num_of_hash << endl;
-
-  // 厳密なJaccard係数を求める
-  cout << "厳密なjaccard係数: " << strict_jaccard(in_t1, in_t2) << endl;
-#endif
-
   return 0;
 }
