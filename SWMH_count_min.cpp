@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
   /*COUNT-MIN用のテーブルを作成する*/
   // CountMinSketch frequency_object(c1, c2);
 
-  histgram frequency_object(vm);
+  Histgram frequency_object(vm);
 
   // ここから時刻による更新
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
     // 出ていく処理
     if (t >= w) {
       int out = database[t - w];
-      add_count(frequency_object, out, -1);
+      update(frequency_object, out, -1);
       int frequency = get_freq(frequency_object, out);
       if (ar[out][0] == (t - w)) {
         ar[out][0] = ar[out][1];
@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
     }
     //入っていく処理////////////////
     In = database[t];
-    add_count(frequency_object, In, 1);
+    update(frequency_object, In, 1);
     int frequency = get_freq(frequency_object, In);
 
     for (int l = 0; l < num_of_hash; l++) {

@@ -5,47 +5,39 @@
 
 using namespace std;
 
-class histgram {
-  vector<int> m_count;
+class Histgram {
+  int *histgramTable;
 
  public:
-  vector<int> m_histgram_table;
-  histgram(int vm);
+  Histgram(int vm);
 
-  vector<int> histgram_table() const;
-  int count(int in);
   int get_freq(int in);
-  void add_count(int in, int value);
+  void update(int in, int value);
 };
 
-histgram::histgram(int vm) : m_histgram_table({}) {
+Histgram::Histgram(int vm) {
+  histgramTable = (int *)malloc(sizeof(int) * vm);
+
+  // histgramTable = new int *[vm];
   for (int i = 0; i < vm; i++) {
-    m_histgram_table.push_back(0);
+    histgramTable[i] = 0;
   }
 }
 
-vector<int> histgram::histgram_table() const {
-  return m_histgram_table;
+int Histgram::get_freq(int in) {
+  return histgramTable[in];
 }
 
-int histgram::count(int in) {
-  return m_histgram_table[in];
+void Histgram::update(int in, int value) {
+  histgramTable[in] = histgramTable[in] + value;
 }
 
-int histgram::get_freq(int in) {
-  return m_histgram_table[in];
+int get_freq(Histgram &Histgram, int in) {
+  return Histgram.get_freq(in);
 }
 
-void histgram::add_count(int in, int value) {
-  m_histgram_table[in] = m_histgram_table[in] + value;
-}
-
-int get_freq(histgram &histgram, int in) {
-  return histgram.get_freq(in);
-}
-
-void add_count(histgram &histgram, int in, int value) {
-  histgram.add_count(in, value);
+void update(Histgram &Histgram, int in, int value) {
+  Histgram.update(in, value);
 }
 
 // int main() {
@@ -56,5 +48,5 @@ void add_count(histgram &histgram, int in, int value) {
 //       cout << a[i] << endl;
 //   }
 //   histgram.add_count(0, 10);
-//   cout << histgram.m_histgram_table[0] << endl;
+//   cout << histgram.histgramTable[0] << endl;
 // }
