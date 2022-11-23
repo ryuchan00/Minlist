@@ -23,7 +23,7 @@
 #include <array>
 
 #include "contents.h"
-#include "count_min.cpp"
+#include "count_min_sketch.cpp"
 #include "histgram.cpp"
 #include "kyotsu.h"
 #include "minhash.h"
@@ -85,9 +85,9 @@ int main(int argc, char *argv[]) {
   int c1 = 16;
   int c2 = 20;
   /*COUNT-MIN用のテーブルを作成する*/
-  // CountMinSketch frequency_object(c1, c2);
+  CountMinSketch frequency_object(c1, c2);
 
-  Histgram frequency_object(vm);
+  // Histgram frequency_object(vm);
 
   // ここから時刻による更新
 

@@ -13,6 +13,8 @@ class Histgram {
 
   int get_freq(int in);
   void update(int in, int value);
+
+  ~Histgram();
 };
 
 Histgram::Histgram(int vm) {
@@ -22,6 +24,10 @@ Histgram::Histgram(int vm) {
   for (int i = 0; i < vm; i++) {
     histgramTable[i] = 0;
   }
+}
+
+Histgram::~Histgram() {
+  free(histgramTable);
 }
 
 int Histgram::get_freq(int in) {

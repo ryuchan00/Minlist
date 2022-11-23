@@ -25,6 +25,9 @@ class CountMinSketch {
   void update(int j, int c);
   // generate "new" aj,bj
   void genajbj(int **hashes, int i);
+
+  // destructor
+  ~CountMinSketch();
 };
 
 CountMinSketch::CountMinSketch(int in_c1, int in_c2) {
@@ -47,6 +50,22 @@ CountMinSketch::CountMinSketch(int in_c1, int in_c2) {
     hashes[i] = new int[2];
     genajbj(hashes, i);
   }
+}
+
+// CountMinSkectch destructor
+CountMinSketch::~CountMinSketch() {
+  // free array of counters, C
+  unsigned int i;
+  for (i = 0; i < c1; i++) {
+    delete[] countMinSketchTable[i];
+  }
+  delete[] countMinSketchTable;
+
+  // free array of hash values
+  for (i = 0; i < c1; i++) {
+    delete[] hashes[i];
+  }
+  delete[] hashes;
 }
 
 // generates aj,bj from field Z_p for use in hashing
