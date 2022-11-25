@@ -32,12 +32,12 @@ void Histgram::update(int in, int value) {
   histgramTable[in] = histgramTable[in] + value;
 }
 
-int get_freq(Histgram &Histgram, int in) {
-  return Histgram.get_freq(in);
+int get_freq(Histgram *Histgram, int in) {
+  return Histgram->get_freq(in);
 }
 
-void update(Histgram &Histgram, int in, int value) {
-  Histgram.update(in, value);
+void update(Histgram *Histgram, int in, int value) {
+  Histgram->update(in, value);
 }
 
 // int main() {

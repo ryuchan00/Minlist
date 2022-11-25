@@ -1,4 +1,5 @@
 // PERFECT WINDOEWED COUNT MINを取り入れた手法で行う
+// 試験評価するために改良を加えたプログラム
 //
 /*Min Hashベースのマルチセットの近似解法*/
 /*Active Indexを実装したもの*/
@@ -81,34 +82,35 @@ int main(int argc, char *argv[]) {
   int out_count = 0;
 
   ////////////////////////////////////////////////////////////////
-
   int c1 = 16;
   int c2 = 20;
-  /*COUNT-MIN用のテーブルを作成する*/
-  CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
-
-  // Histgram *frequency_object = new Histgram(vm);
 
   // ここから時刻による更新
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
 
-  vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm, 0));
-  int tmp_pointer;
   clock_t start = clock();  // ここから時間を測る
+  for (int l = 0; l < num_of_hash; l++) {
+    int t = 0;
+    /*COUNT-MIN用のテーブルを作成する*/
+    // CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
 
-  while (t < dmax) {
-    // 出ていく処理
-    if (t >= w) {
-      int out = database[t - w];
-      update(frequency_object, out, -1);
-      int frequency = get_freq(frequency_object, out);
-      if (ar[out][0] == (t - w)) {
-        ar[out][0] = ar[out][1];
-        ar[out][1] = -1;
-      }
-      double sum_length = 0;
-      for (int l = 0; l < num_of_hash; l++) {
+    Histgram *frequency_object = new Histgram(vm);
+
+    vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm, 0));
+    int tmp_pointer;
+    while (t < dmax) {
+      // 出ていく処理
+      if (t >= w) {
+        int out = database[t - w];
+        update(frequency_object, out, -1);
+        int frequency = get_freq(frequency_object, out);
+        if (ar[out][0] == (t - w)) {
+          ar[out][0] = ar[out][1];
+          ar[out][1] = -1;
+        }
+        double sum_length = 0;
+        // for (int l = 0; l < num_of_hash; l++) {
         // allocation_pointerを移動する
         if (fx[l][out][allocation_pointer[l][out]].multiplicity > frequency) {
           while (fx[l][out][allocation_pointer[l][out]].multiplicity > frequency) {
@@ -162,16 +164,16 @@ int main(int argc, char *argv[]) {
           min_elem[l].value = min;
           min_elem[l].label = m_label;
         }
+        // }
+        time_ave_length = sum_length / (double)num_of_hash;
+        sum_time_ave_length += time_ave_length;
       }
-      time_ave_length = sum_length / (double)num_of_hash;
-      sum_time_ave_length += time_ave_length;
-    }
-    //入っていく処理////////////////
-    In = database[t];
-    update(frequency_object, In, 1);
-    int frequency = get_freq(frequency_object, In);
+      //入っていく処理////////////////
+      In = database[t];
+      update(frequency_object, In, 1);
+      int frequency = get_freq(frequency_object, In);
 
-    for (int l = 0; l < num_of_hash; l++) {
+      // for (int l = 0; l < num_of_hash; l++) {
       // allocation_pointerの次の要素が存在しているか確認している
       if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= frequency) {
         while (fx[l][In][allocation_pointer[l][In] + 1].multiplicity < frequency) {
@@ -240,10 +242,12 @@ int main(int argc, char *argv[]) {
         min_elem[l].label = In;
         min_elem[l].multiplicity = frequency;
       }
-    }
+      // }
 
-    ar[In][0] = t;
-    t++;
+      ar[In][0] = t;
+      t++;
+    }
+    delete frequency_object;
   }
 
   ave_length = sum_time_ave_length / t;
