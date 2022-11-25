@@ -93,12 +93,12 @@ void CountMinSketch::update(int j, int c) {
   }
 }
 
-int get_freq(CountMinSketch &CountMinSketch, int j) {
-  return CountMinSketch.get_freq(j);
+int get_freq(CountMinSketch *CountMinSketch, int j) {
+  return CountMinSketch->get_freq(j);
 }
 
-void update(CountMinSketch &CountMinSketch, int j, int value) {
-  CountMinSketch.update(j, value);
+void update(CountMinSketch *CountMinSketch, int j, int value) {
+  CountMinSketch->update(j, value);
 }
 
 // 動作確認用のmain関数

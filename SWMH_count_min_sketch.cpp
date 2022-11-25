@@ -85,9 +85,9 @@ int main(int argc, char *argv[]) {
   int c1 = 16;
   int c2 = 20;
   /*COUNT-MIN用のテーブルを作成する*/
-  CountMinSketch frequency_object(c1, c2);
+  CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
 
-  // Histgram frequency_object(vm);
+  // Histgram *frequency_object = new Histgram(vm);
 
   // ここから時刻による更新
 
