@@ -23,7 +23,7 @@
 #include <array>
 
 #include "contents.h"
-#include "count_min.cpp"
+#include "count_min_sketch.cpp"
 #include "histgram.cpp"
 #include "kyotsu.h"
 #include "minhash.h"
