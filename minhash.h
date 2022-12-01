@@ -146,7 +146,7 @@ std::vector<std::vector<std::vector<index>>> active_index(int &num_of_hash, int 
   std::vector<std::vector<std::vector<index>>> fx(num_of_hash, std::vector<std::vector<index>>(vm, std::vector<index>()));
   for (int l = 0; l < num_of_hash; l++) {
     for (int i = 0; i < vm; i++) {
-      int before_value = 500000000;
+      int before_value = numeric_limits<int>::max();
       for (int s = 1; s <= multi; s++) {
         int Allocation_s = minhash[l][i + (vm * (s - 1))];  //アルファベットに対してs番目の割り当て値
         if (!(Allocation_s > before_value)) {
@@ -156,6 +156,24 @@ std::vector<std::vector<std::vector<index>>> active_index(int &num_of_hash, int 
           fx[l][i].push_back(idx);
           before_value = Allocation_s;
         }
+      }
+    }
+  }
+  return fx;
+}
+
+std::vector<std::vector<index>> line_of_active_index(int &vm, int &multi, std::vector<int> &minhash) {
+  std::vector<std::vector<index>> fx(std::vector<std::vector<index>>(vm, std::vector<index>()));
+  for (int i = 0; i < vm; i++) {
+    int before_value = numeric_limits<int>::max();
+    for (int s = 1; s <= multi; s++) {
+      int Allocation_s = minhash[i + (vm * (s - 1))];  //アルファベットに対してs番目の割り当て値
+      if (!(Allocation_s > before_value)) {
+        struct index idx;
+        idx.multiplicity = s;
+        idx.value = Allocation_s;
+        fx[i].push_back(idx);
+        before_value = Allocation_s;
       }
     }
   }
