@@ -26,6 +26,20 @@ std::vector<std::vector<int>> readminhash(char *filename) {
   return minhash;
 }
 
+/*Minhashの1行のみ読み込み*/
+std::vector<int> read_line_minhash(char *filename) {
+  std::vector<int> minhash;
+  std::ifstream ifs(filename);
+  std::vector<int> empty;
+  std::string str, x;
+  getline(ifs, str);
+  std::istringstream line(str);
+  while (getline(line, x, ',')) {
+    minhash.push_back(atoi(x.c_str()));
+  }
+  return minhash;
+}
+
 /*ハッシュ値の計算*/
 int hashvalue(std::vector<int> &hash, std::vector<int> &data) {
   int value = hash.size() + 1;

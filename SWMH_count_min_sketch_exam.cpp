@@ -48,10 +48,11 @@ int main(int argc, char *argv[]) {
   vector<vector<int>> minhash;
   vector<int>::iterator it;
 
-  char *mhname = argv[3];            // Minhash.txt
-  minhash = readminhash(mhname);     // ハッシュ関数の読み込み
-  int num_of_hash = minhash.size();  // ハッシュ関数の数
-  int vmw = minhash[0].size();       // 要素種類数 × 多重度の数
+  char *mhname = argv[3];  // Minhash.txt
+  // int num_of_hash = minhash.size();  // ハッシュ関数の数
+  int num_of_hash = 10;  // ハッシュ関数の数
+  // int vmw = minhash[0].size();       // 要素種類数 × 多重度の数
+  int vmw = 100 * 100;               // 要素種類数 × 多重度の数
   int multi = atoi(argv[4]);         // wの中の要素の数の上限
   int vm = vmw / multi;              // 要素の種類数
   int search_limit = atoi(argv[5]);  // delete_val探索時の探索回数
@@ -90,16 +91,20 @@ int main(int argc, char *argv[]) {
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
 
   clock_t start = clock();  // ここから時間を測る
+  int c = 0;
   for (int l = 0; l < num_of_hash; l++) {
+    minhash = readminhash(mhname);  // ハッシュ関数の読み込み
+
     int t = 0;
     /*COUNT-MIN用のテーブルを作成する*/
-    // CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
+    CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
 
-    Histgram *frequency_object = new Histgram(vm);
+    // Histgram *frequency_object = new Histgram(vm);
 
     vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm, 0));
     int tmp_pointer;
     while (t < dmax) {
+      c++;
       // 出ていく処理
       if (t >= w) {
         int out = database[t - w];
@@ -252,6 +257,7 @@ int main(int argc, char *argv[]) {
 
   ave_length = sum_time_ave_length / t;
   cout << ave_length << "\n";
+  cout << "c:" << c << "\n";
 
   cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  // ここまで時間測定
