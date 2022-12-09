@@ -51,10 +51,11 @@ int main(int argc, char *argv[]) {
 
   char *mhname = argv[3];  // Minhash.txt
   // int num_of_hash = minhash.size();  // ハッシュ関数の数
-  int num_of_hash = 10;  // ハッシュ関数の数
+  int num_of_hash = atoi(argv[6]);  // ハッシュ関数の数
   // int vmw = minhash[0].size();       // 要素種類数 × 多重度の数
-  int vmw = 100 * 100;               // 要素種類数 × 多重度の数
   int multi = atoi(argv[4]);         // wの中の要素の数の上限
+  int element_num = atoi(argv[7]);   // 要素種類数
+  int vmw = element_num * multi;     // 要素種類数 × 多重度の数
   int vm = vmw / multi;              // 要素の種類数
   int search_limit = atoi(argv[5]);  // delete_val探索時の探索回数
 
@@ -86,15 +87,16 @@ int main(int argc, char *argv[]) {
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
 
   clock_t start = clock();  // ここから時間を測る
+  int c;
   for (int l = 0; l < num_of_hash; l++) {
     minhash = read_line_minhash(mhname);  // ハッシュ関数の読み込み
     ////////////////////////////////////////////////////////////////
     /*Min-hashに用いるランダムの値のテーブル*/
 
-    vector<vector<index>> fx(num_of_hash);
-    fx = active_index(num_of_hash, vm, multi, minhash);
+    vector<vector<index>> fx;
+    fx = line_of_active_index(vm, multi, minhash);
 
-    int t = 0;
+    t = 0;
     /*COUNT-MIN用のテーブルを作成する*/
     CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
 
@@ -103,6 +105,7 @@ int main(int argc, char *argv[]) {
     vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm, 0));
     int tmp_pointer;
     while (t < dmax) {
+      c++;
       // 出ていく処理
       if (t >= w) {
         int out = database[t - w];
@@ -115,8 +118,8 @@ int main(int argc, char *argv[]) {
         double sum_length = 0;
         // for (int l = 0; l < num_of_hash; l++) {
         // allocation_pointerを移動する
-        if (fx[l][out][allocation_pointer[l][out]].multiplicity > frequency) {
-          while (fx[l][out][allocation_pointer[l][out]].multiplicity > frequency) {
+        if (fx[out][allocation_pointer[l][out]].multiplicity > frequency) {
+          while (fx[out][allocation_pointer[l][out]].multiplicity > frequency) {
             // 不連続を考慮する
             allocation_pointer[l][out] -= 1;
             if (allocation_pointer[l][out] < 0) {
@@ -133,8 +136,8 @@ int main(int argc, char *argv[]) {
         if (out == min_elem[l].label) {
           for (int m = 0; m < Minlist[l].size(); m++) {
             // COUNT-MINにより不連続になってしまった頻度のため，Minlistの補正作業を行う
-            if (Minlist[l][m].value < fx[l][out][allocation_pointer[l][out]].value) {
-              Minlist[l][m].value = fx[l][out][allocation_pointer[l][out]].value;
+            if (Minlist[l][m].value < fx[out][allocation_pointer[l][out]].value) {
+              Minlist[l][m].value = fx[out][allocation_pointer[l][out]].value;
             }
           }
 
@@ -148,7 +151,7 @@ int main(int argc, char *argv[]) {
             if (min > Minlist_value) {
               // 最小値を調べる
               int label = Minlist[l][m].label;
-              int value_check = fx[l][label][allocation_pointer[l][label]].value;
+              int value_check = fx[label][allocation_pointer[l][label]].value;
 
               if (Minlist_value == value_check) {
                 // 割り当て値に間違いがない場合
@@ -178,18 +181,18 @@ int main(int argc, char *argv[]) {
 
       // for (int l = 0; l < num_of_hash; l++) {
       // allocation_pointerの次の要素が存在しているか確認している
-      if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity <= frequency) {
-        while (fx[l][In][allocation_pointer[l][In] + 1].multiplicity < frequency) {
+      if (allocation_pointer[l][In] + 1 < fx[In].size() && fx[In][allocation_pointer[l][In] + 1].multiplicity <= frequency) {
+        while (fx[In][allocation_pointer[l][In] + 1].multiplicity < frequency) {
           // 不連続を考慮する
           allocation_pointer[l][In] += 1;
-          if (allocation_pointer[l][In] + 1 >= fx[l][In].size()) {
-            allocation_pointer[l][In] = fx[l][In].size() - 1;
+          if (allocation_pointer[l][In] + 1 >= fx[In].size()) {
+            allocation_pointer[l][In] = fx[In].size() - 1;
             break;
           }
         }
       }
-      int in_value = fx[l][In][allocation_pointer[l][In]].value;  // 現在入ってきた要素の値
-      int delete_val = 0;                                         // 1番目の値
+      int in_value = fx[In][allocation_pointer[l][In]].value;  // 現在入ってきた要素の値
+      int delete_val = 0;                                      // 1番目の値
       int m = Minlist[l].size() - 1;
       int back_IN_num = 0;  // 後方にあるhist_max_labelの要素数
       tmp_pointer = 0;      // delete_val算出のためのpointer
@@ -207,10 +210,10 @@ int main(int argc, char *argv[]) {
           while (Minlist[l][m].time < hist_time) {
             // 時刻によって判断
             back_IN_num++;
-            if (fx[l][In][tmp_pointer].multiplicity < back_IN_num) {
+            if (fx[In][tmp_pointer].multiplicity < back_IN_num) {
               tmp_pointer += 1;
             }
-            delete_val = fx[l][In][tmp_pointer].value;
+            delete_val = fx[In][tmp_pointer].value;
 
             // back_IN_num=2のとき、hist_timeの更新はこれ以上必要ない。
             if (back_IN_num >= search_limit) {
@@ -252,8 +255,8 @@ int main(int argc, char *argv[]) {
     }
     delete frequency_object;
   }
-
   ave_length = sum_time_ave_length / t;
+  cout << c << "\n";
   cout << ave_length << "\n";
 
   cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
