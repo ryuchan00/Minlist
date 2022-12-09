@@ -89,12 +89,14 @@ int main(int argc, char *argv[]) {
   clock_t start = clock();  // ここから時間を測る
   int c;
   for (int l = 0; l < num_of_hash; l++) {
+    // while文の順番を入れ替えることはない
     minhash = read_line_minhash(mhname);  // ハッシュ関数の読み込み
     ////////////////////////////////////////////////////////////////
     /*Min-hashに用いるランダムの値のテーブル*/
 
     vector<vector<index>> fx;
-    fx = line_of_active_index(vm, multi, minhash);
+    fx[l] = line_of_active_index(vm, multi, minhash);
+  }
 
     t = 0;
     /*COUNT-MIN用のテーブルを作成する*/
