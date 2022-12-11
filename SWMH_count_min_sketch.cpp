@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
   vector<std::array<int, 2>> ar(vm, {-1, -1});    // 固定長で試してみる
   vector<int> reset_count(num_of_hash, 0);
 
-  int In;  //データストリームに入ってくる一番新しい要素
+  int In;  // データストリームに入ってくる一番新しい要素
   // 最小値
   struct contents a;
   a.label = 99999;
@@ -167,7 +167,7 @@ int main(int argc, char *argv[]) {
       time_ave_length = sum_length / (double)num_of_hash;
       sum_time_ave_length += time_ave_length;
     }
-    //入っていく処理////////////////
+    // 入っていく処理////////////////
     In = database[t];
     update(frequency_object, In, 1);
     int frequency = get_freq(frequency_object, In);

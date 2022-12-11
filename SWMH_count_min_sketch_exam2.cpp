@@ -44,15 +44,11 @@ int main(int argc, char *argv[]) {
   int w = atoi(argv[2]);  // ウインドウサイズ
   int dmax = PERIOD + w;  // ストリームデータの長さ
 
-  // vector<vector<int>> minhash;
   vector<int> minhash;
   vector<int>::iterator it;
 
-  char *mhname = argv[3];  // Minhash.txt
-  // minhash = readminhash(mhname);     // ハッシュ関数の読み込み
-  // int num_of_hash = minhash.size();  // ハッシュ関数の数
-  int num_of_hash = atoi(argv[6]);  // ハッシュ関数の数
-  // int vmw = minhash[0].size();      // 要素種類数 × 多重度の数
+  char *mhname = argv[3];            // Minhash.txt
+  int num_of_hash = atoi(argv[6]);   // ハッシュ関数の数
   int multi = atoi(argv[4]);         // wの中の要素の数の上限
   int element_num = atoi(argv[7]);   // 要素種類数
   int vmw = element_num * multi;     // 要素種類数 × 多重度の数
@@ -61,9 +57,12 @@ int main(int argc, char *argv[]) {
 
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
-
   vector<vector<vector<index>>> fx(num_of_hash);
-  // fx = active_index(num_of_hash, vm, multi, minhash);
+  for (int l = 0; l < num_of_hash; l++) {
+    minhash = read_line_minhash(mhname);  // ハッシュ関数の読み込み
+    /*Min-hashに用いるランダムの値のテーブル*/
+    fx[l] = line_of_active_index(vm, multi, minhash);
+  }
 
   ////////////////////////////////////////////////////////////////
 
@@ -71,9 +70,8 @@ int main(int argc, char *argv[]) {
 
   vector<vector<contents>> Minlist(num_of_hash);  // 残っている要素のリスト[ハッシュ関数][残ってる要素]
   vector<std::array<int, 2>> ar(vm, {-1, -1});    // 固定長で試してみる
-  vector<int> reset_count(num_of_hash, 0);
 
-  int In;  //データストリームに入ってくる一番新しい要素
+  int In;  // データストリームに入ってくる一番新しい要素
   // 最小値
   struct contents a;
   a.label = 99999;
@@ -90,23 +88,13 @@ int main(int argc, char *argv[]) {
   int c2 = 20;
   /*COUNT-MIN用のテーブルを作成する*/
   CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
-
   // Histgram *frequency_object = new Histgram(vm);
 
   // ここから時刻による更新
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
-
   vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm, 0));
   int tmp_pointer;
-  for (int l = 0; l < num_of_hash; l++) {
-    // while文の順番を入れ替えることはない
-    minhash = read_line_minhash(mhname);  // ハッシュ関数の読み込み
-    ////////////////////////////////////////////////////////////////
-    /*Min-hashに用いるランダムの値のテーブル*/
-
-    fx[l] = line_of_active_index(vm, multi, minhash);
-  }
 
   // while以下は触らない
   clock_t start = clock();  // ここから時間を測る
@@ -180,7 +168,7 @@ int main(int argc, char *argv[]) {
       time_ave_length = sum_length / (double)num_of_hash;
       sum_time_ave_length += time_ave_length;
     }
-    //入っていく処理////////////////
+    // 入っていく処理////////////////
     In = database[t];
     update(frequency_object, In, 1);
     int frequency = get_freq(frequency_object, In);
