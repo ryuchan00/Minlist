@@ -98,174 +98,174 @@ int main(int argc, char *argv[]) {
     fx[l] = line_of_active_index(vm, multi, minhash);
   }
 
-    t = 0;
-    /*COUNT-MIN用のテーブルを作成する*/
-    CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
+  t = 0;
+  /*COUNT-MIN用のテーブルを作成する*/
+  CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
 
-    // Histgram *frequency_object = new Histgram(vm);
+  // Histgram *frequency_object = new Histgram(vm);
 
-    vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm, 0));
-    int tmp_pointer;
-    while (t < dmax) {
-      c++;
-      // 出ていく処理
-      if (t >= w) {
-        int out = database[t - w];
-        update(frequency_object, out, -1);
-        int frequency = get_freq(frequency_object, out);
-        if (ar[out][0] == (t - w)) {
-          ar[out][0] = ar[out][1];
-          ar[out][1] = -1;
-        }
-        double sum_length = 0;
-        // for (int l = 0; l < num_of_hash; l++) {
-        // allocation_pointerを移動する
-        if (fx[out][allocation_pointer[l][out]].multiplicity > frequency) {
-          while (fx[out][allocation_pointer[l][out]].multiplicity > frequency) {
-            // 不連続を考慮する
-            allocation_pointer[l][out] -= 1;
-            if (allocation_pointer[l][out] < 0) {
-              allocation_pointer[l][out] = 0;
-              break;
-            }
-          }
-        }
-        sum_length += Minlist[l].size();
-        if (Minlist[l][0].time == t - w) {
-          Minlist[l].erase(Minlist[l].begin());
-          out_count++;
-        }
-        if (out == min_elem[l].label) {
-          for (int m = 0; m < Minlist[l].size(); m++) {
-            // COUNT-MINにより不連続になってしまった頻度のため，Minlistの補正作業を行う
-            if (Minlist[l][m].value < fx[out][allocation_pointer[l][out]].value) {
-              Minlist[l][m].value = fx[out][allocation_pointer[l][out]].value;
-            }
-          }
-
-          // 最小値と同じラベルがストリームデータから出ていく時
-          int min = 5000000;
-          int m_label;
-
-          for (int m = 0; m < Minlist[l].size(); m++) {
-            int Minlist_value = Minlist[l][m].value;
-
-            if (min > Minlist_value) {
-              // 最小値を調べる
-              int label = Minlist[l][m].label;
-              int value_check = fx[label][allocation_pointer[l][label]].value;
-
-              if (Minlist_value == value_check) {
-                // 割り当て値に間違いがない場合
-                min = Minlist_value;
-                m_label = label;
-              } else {
-                Minlist[l][m].value = value_check;
-                if (min > value_check) {
-                  // 割り当て値が間違っている場合
-                  min = value_check;
-                  m_label = label;
-                }
-              }
-            }
-          }
-          min_elem[l].value = min;
-          min_elem[l].label = m_label;
-        }
-        // }
-        time_ave_length = sum_length / (double)num_of_hash;
-        sum_time_ave_length += time_ave_length;
+  vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm, 0));
+  int tmp_pointer;
+  while (t < dmax) {
+    c++;
+    // 出ていく処理
+    if (t >= w) {
+      int out = database[t - w];
+      update(frequency_object, out, -1);
+      int frequency = get_freq(frequency_object, out);
+      if (ar[out][0] == (t - w)) {
+        ar[out][0] = ar[out][1];
+        ar[out][1] = -1;
       }
-      //入っていく処理////////////////
-      In = database[t];
-      update(frequency_object, In, 1);
-      int frequency = get_freq(frequency_object, In);
-
+      double sum_length = 0;
       // for (int l = 0; l < num_of_hash; l++) {
-      // allocation_pointerの次の要素が存在しているか確認している
-      if (allocation_pointer[l][In] + 1 < fx[In].size() && fx[In][allocation_pointer[l][In] + 1].multiplicity <= frequency) {
-        while (fx[In][allocation_pointer[l][In] + 1].multiplicity < frequency) {
+      // allocation_pointerを移動する
+      if (fx[out][allocation_pointer[l][out]].multiplicity > frequency) {
+        while (fx[out][allocation_pointer[l][out]].multiplicity > frequency) {
           // 不連続を考慮する
-          allocation_pointer[l][In] += 1;
-          if (allocation_pointer[l][In] + 1 >= fx[In].size()) {
-            allocation_pointer[l][In] = fx[In].size() - 1;
+          allocation_pointer[l][out] -= 1;
+          if (allocation_pointer[l][out] < 0) {
+            allocation_pointer[l][out] = 0;
             break;
           }
         }
       }
-      int in_value = fx[In][allocation_pointer[l][In]].value;  // 現在入ってきた要素の値
-      int delete_val = 0;                                      // 1番目の値
-      int m = Minlist[l].size() - 1;
-      int back_IN_num = 0;  // 後方にあるhist_max_labelの要素数
-      tmp_pointer = 0;      // delete_val算出のためのpointer
-      int pointer = 0;
-      int hist_time = t;
-
-      while (m >= 0) {
-        // Minlistのスキャン
-        if (Minlist[l][m].label == In) {
-          // 同じラベルのを消す
-          Minlist[l].erase(Minlist[l].begin() + m);
-          same_count++;
-        } else {
-          // back_IN_num=1のして初期化して、むだなwhileを省く
-          while (Minlist[l][m].time < hist_time) {
-            // 時刻によって判断
-            back_IN_num++;
-            if (fx[In][tmp_pointer].multiplicity < back_IN_num) {
-              tmp_pointer += 1;
-            }
-            delete_val = fx[In][tmp_pointer].value;
-
-            // back_IN_num=2のとき、hist_timeの更新はこれ以上必要ない。
-            if (back_IN_num >= search_limit) {
-              hist_time = -1;
-              break;
-            }
-
-            if (ar[In][0] != -1) {
-              hist_time = ar[In][0];
-              ar[In][0] = -1;
-            } else {
-              hist_time = -1;
-            }
-          }
-          if (Minlist[l][m].value >= delete_val) {
-            // 値を比べる
-            Minlist[l].erase(Minlist[l].begin() + m);
-            another_count++;
+      sum_length += Minlist[l].size();
+      if (Minlist[l][0].time == t - w) {
+        Minlist[l].erase(Minlist[l].begin());
+        out_count++;
+      }
+      if (out == min_elem[l].label) {
+        for (int m = 0; m < Minlist[l].size(); m++) {
+          // COUNT-MINにより不連続になってしまった頻度のため，Minlistの補正作業を行う
+          if (Minlist[l][m].value < fx[out][allocation_pointer[l][out]].value) {
+            Minlist[l][m].value = fx[out][allocation_pointer[l][out]].value;
           }
         }
-        m--;
-      }
-      a.label = In;
-      a.time = t;
-      a.value = in_value;
-      a.multiplicity = frequency;
-      Minlist[l].push_back(a);
 
-      if (min_elem[l].value > in_value) {
-        // 最小値の更新
-        min_elem[l].value = in_value;
-        min_elem[l].label = In;
-        min_elem[l].multiplicity = frequency;
+        // 最小値と同じラベルがストリームデータから出ていく時
+        int min = 5000000;
+        int m_label;
+
+        for (int m = 0; m < Minlist[l].size(); m++) {
+          int Minlist_value = Minlist[l][m].value;
+
+          if (min > Minlist_value) {
+            // 最小値を調べる
+            int label = Minlist[l][m].label;
+            int value_check = fx[label][allocation_pointer[l][label]].value;
+
+            if (Minlist_value == value_check) {
+              // 割り当て値に間違いがない場合
+              min = Minlist_value;
+              m_label = label;
+            } else {
+              Minlist[l][m].value = value_check;
+              if (min > value_check) {
+                // 割り当て値が間違っている場合
+                min = value_check;
+                m_label = label;
+              }
+            }
+          }
+        }
+        min_elem[l].value = min;
+        min_elem[l].label = m_label;
       }
       // }
-
-      ar[In][0] = t;
-      t++;
+      time_ave_length = sum_length / (double)num_of_hash;
+      sum_time_ave_length += time_ave_length;
     }
-    delete frequency_object;
-  }
-  ave_length = sum_time_ave_length / t;
-  cout << c << "\n";
-  cout << ave_length << "\n";
+    //入っていく処理////////////////
+    In = database[t];
+    update(frequency_object, In, 1);
+    int frequency = get_freq(frequency_object, In);
 
-  cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
-  clock_t end = clock();  // ここまで時間測定
-  cout << (double)(end - start) / CLOCKS_PER_SEC << " sec" << endl;
-  struct rusage resource;
-  getrusage(RUSAGE_SELF, &resource);
-  printf("memory: %ld\n", resource.ru_maxrss);
-  return 0;
+    // for (int l = 0; l < num_of_hash; l++) {
+    // allocation_pointerの次の要素が存在しているか確認している
+    if (allocation_pointer[l][In] + 1 < fx[In].size() && fx[In][allocation_pointer[l][In] + 1].multiplicity <= frequency) {
+      while (fx[In][allocation_pointer[l][In] + 1].multiplicity < frequency) {
+        // 不連続を考慮する
+        allocation_pointer[l][In] += 1;
+        if (allocation_pointer[l][In] + 1 >= fx[In].size()) {
+          allocation_pointer[l][In] = fx[In].size() - 1;
+          break;
+        }
+      }
+    }
+    int in_value = fx[In][allocation_pointer[l][In]].value;  // 現在入ってきた要素の値
+    int delete_val = 0;                                      // 1番目の値
+    int m = Minlist[l].size() - 1;
+    int back_IN_num = 0;  // 後方にあるhist_max_labelの要素数
+    tmp_pointer = 0;      // delete_val算出のためのpointer
+    int pointer = 0;
+    int hist_time = t;
+
+    while (m >= 0) {
+      // Minlistのスキャン
+      if (Minlist[l][m].label == In) {
+        // 同じラベルのを消す
+        Minlist[l].erase(Minlist[l].begin() + m);
+        same_count++;
+      } else {
+        // back_IN_num=1のして初期化して、むだなwhileを省く
+        while (Minlist[l][m].time < hist_time) {
+          // 時刻によって判断
+          back_IN_num++;
+          if (fx[In][tmp_pointer].multiplicity < back_IN_num) {
+            tmp_pointer += 1;
+          }
+          delete_val = fx[In][tmp_pointer].value;
+
+          // back_IN_num=2のとき、hist_timeの更新はこれ以上必要ない。
+          if (back_IN_num >= search_limit) {
+            hist_time = -1;
+            break;
+          }
+
+          if (ar[In][0] != -1) {
+            hist_time = ar[In][0];
+            ar[In][0] = -1;
+          } else {
+            hist_time = -1;
+          }
+        }
+        if (Minlist[l][m].value >= delete_val) {
+          // 値を比べる
+          Minlist[l].erase(Minlist[l].begin() + m);
+          another_count++;
+        }
+      }
+      m--;
+    }
+    a.label = In;
+    a.time = t;
+    a.value = in_value;
+    a.multiplicity = frequency;
+    Minlist[l].push_back(a);
+
+    if (min_elem[l].value > in_value) {
+      // 最小値の更新
+      min_elem[l].value = in_value;
+      min_elem[l].label = In;
+      min_elem[l].multiplicity = frequency;
+    }
+    // }
+
+    ar[In][0] = t;
+    t++;
+  }
+  delete frequency_object;
+}
+ave_length = sum_time_ave_length / t;
+cout << c << "\n";
+cout << ave_length << "\n";
+
+cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
+clock_t end = clock();  // ここまで時間測定
+cout << (double)(end - start) / CLOCKS_PER_SEC << " sec" << endl;
+struct rusage resource;
+getrusage(RUSAGE_SELF, &resource);
+printf("memory: %ld\n", resource.ru_maxrss);
+return 0;
 }
