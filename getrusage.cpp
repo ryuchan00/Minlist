@@ -56,4 +56,4 @@ int main() {
          diffUserTime(&start, &end), diffSystemTime(&start, &end));
 
   exit(EXIT_SUCCESS);
-}
+  }

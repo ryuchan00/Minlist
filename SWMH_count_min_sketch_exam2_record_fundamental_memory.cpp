@@ -31,15 +31,15 @@
 
 // #define DEBUG
 
-// #define PERIOD (100000)
+#define PERIOD (100000)
 // using namespace std;
 
 int main(int argc, char *argv[]) {
   int t = 0;
 
-  // vector<int> database;                  // データベース
-  // char *dbname = argv[1];                // database.txt
-  // database = readdatabase_line(dbname);  // データベース作成
+  vector<int> database;                  // データベース
+  char *dbname = argv[1];                // database.txt
+  database = readdatabase_line(dbname);  // データベース作成
 
   /*パラメータ*/
   int w = atoi(argv[2]);  // ウインドウサイズ
@@ -251,13 +251,13 @@ int main(int argc, char *argv[]) {
   // }
 
   ave_length = sum_time_ave_length / t;
-  cout << ave_length << "\n";
+  // cout << ave_length << "\n";
 
-  cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
+  // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  // ここまで時間測定
-  cout << (double)(end - start) / CLOCKS_PER_SEC << " sec" << endl;
+  // cout << (double)(end - start) / CLOCKS_PER_SEC << " sec" << endl;
   struct rusage resource;
   getrusage(RUSAGE_SELF, &resource);
-  printf("memory: %ld\n", resource.ru_maxrss);
+  // printf("memory: %ld\n", resource.ru_maxrss);
   return 0;
 }

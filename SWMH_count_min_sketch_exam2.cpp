@@ -29,6 +29,7 @@
 #include "minhash.h"
 
 // #define DEBUG
+#define STREAM_DATA
 
 #define PERIOD (100000)
 using namespace std;
@@ -42,10 +43,12 @@ int main(int argc, char *argv[]) {
 
   /*パラメータ*/
   int w = atoi(argv[2]);  // ウインドウサイズ
+#ifdef STREAM_DATA
   int dmax = PERIOD + w;  // ストリームデータの長さ
 
   vector<int> minhash;
   vector<int>::iterator it;
+#endif
 
   char *mhname = argv[3];            // Minhash.txt
   int num_of_hash = atoi(argv[6]);   // ハッシュ関数の数
@@ -55,6 +58,7 @@ int main(int argc, char *argv[]) {
   int vm = vmw / multi;              // 要素の種類数
   int search_limit = atoi(argv[5]);  // delete_val探索時の探索回数
 
+#ifdef STREAM_DATA
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
   vector<vector<vector<index>>> fx(num_of_hash);
@@ -70,6 +74,7 @@ int main(int argc, char *argv[]) {
 
   vector<vector<contents>> Minlist(num_of_hash);  // 残っている要素のリスト[ハッシュ関数][残ってる要素]
   vector<std::array<int, 2>> ar(vm, {-1, -1});    // 固定長で試してみる
+#endif
 
   int In;  // データストリームに入ってくる一番新しい要素
   // 最小値
@@ -83,22 +88,26 @@ int main(int argc, char *argv[]) {
   int out_count = 0;
 
   ////////////////////////////////////////////////////////////////
-
+#ifdef STREAM_DATA
   int c1 = 16;
   int c2 = 20;
   /*COUNT-MIN用のテーブルを作成する*/
   CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
   // Histgram *frequency_object = new Histgram(vm);
+#endif
 
   // ここから時刻による更新
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
+#ifdef STREAM_DATA
   vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm, 0));
   int tmp_pointer;
+#endif
 
   // while以下は触らない
   clock_t start = clock();  // ここから時間を測る
 
+#ifdef STREAM_DATA
   while (t < dmax) {
     // 出ていく処理
     if (t >= w) {
@@ -247,15 +256,17 @@ int main(int argc, char *argv[]) {
     ar[In][0] = t;
     t++;
   }
+#endif
 
   ave_length = sum_time_ave_length / t;
-  cout << ave_length << "\n";
+  // cout << ave_length << "\n";
 
-  cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
+  // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  // ここまで時間測定
-  cout << (double)(end - start) / CLOCKS_PER_SEC << " sec" << endl;
-  struct rusage resource;
+  // cout << (double)(end - start) / CLOCKS_PER_SEC << " sec" << endl;
+  struct rusage resource;     
   getrusage(RUSAGE_SELF, &resource);
-  printf("memory: %ld\n", resource.ru_maxrss);
+  // printf("memory: %ld\n", resource.ru_maxrss);
+  printf("%ld\n", resource.ru_maxrss);
   return 0;
 }
