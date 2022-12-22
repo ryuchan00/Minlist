@@ -30,6 +30,7 @@
 
 // #define DEBUG
 #define STREAM_DATA
+#define COUNT_MIN
 
 #define PERIOD (100000)
 using namespace std;
@@ -97,7 +98,6 @@ int main(int argc, char *argv[]) {
 #endif
 
   // ここから時刻による更新
-
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
 #ifdef STREAM_DATA
   vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm, 0));
@@ -264,7 +264,7 @@ int main(int argc, char *argv[]) {
   // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  // ここまで時間測定
   // cout << (double)(end - start) / CLOCKS_PER_SEC << " sec" << endl;
-  struct rusage resource;     
+  struct rusage resource;
   getrusage(RUSAGE_SELF, &resource);
   // printf("memory: %ld\n", resource.ru_maxrss);
   printf("%ld\n", resource.ru_maxrss);

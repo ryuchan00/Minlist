@@ -26,7 +26,7 @@
 #include "kyotsu.h"
 #include "minhash.h"
 
-// #define DEBUG
+#define DEBUG
 
 #define PERIOD (100000)
 using namespace std;
@@ -34,32 +34,32 @@ using namespace std;
 int main(int argc, char *argv[]) {
   int t = 0;
 
-  vector<int> database;                  //データベース
+  vector<int> database;                  // データベース
   char *dbname = argv[1];                // database.txt
-  database = readdatabase_line(dbname);  //データベース作成
+  database = readdatabase_line(dbname);  // データベース作成
 
   /*パラメータ*/
-  int w = atoi(argv[2]);  //ウインドウサイズ
-  int dmax = PERIOD + w;  //ストリームデータの長さ
+  int w = atoi(argv[2]);  // ウインドウサイズ
+  int dmax = PERIOD + w;  // ストリームデータの長さ
 
   vector<vector<int>> minhash;
   vector<int>::iterator it;
 
   char *mhname = argv[3];            // Minhash.txt
-  minhash = readminhash(mhname);     //ハッシュ関数の読み込み
-  int num_of_hash = minhash.size();  //ハッシュ関数の数
-  int vmw = minhash[0].size();       //要素種類数 × 多重度の数
+  minhash = readminhash(mhname);     // ハッシュ関数の読み込み
+  int num_of_hash = minhash.size();  // ハッシュ関数の数
+  int vmw = minhash[0].size();       // 要素種類数 × 多重度の数
   int multi = atoi(argv[4]);         // wの中の要素の数の上限
-  int vm = vmw / multi;              //要素の種類数
+  int vm = vmw / multi;              // 要素の種類数
 
   int search_limit = atoi(argv[5]);  // delete_val探索時の探索回数
 
 #ifdef DEBUG
   /* 乱数SEED設定 */
-  struct timeval tv;        // 変数の宣言
-  gettimeofday(&tv, NULL);  // 現在の時刻を取得
-  // srand((unsigned int)tv.tv_sec * ((unsigned int)tv.tv_usec + 1));  // 秒×μ秒 + 1
-  srand(2);  // テストのためseed固定
+  struct timeval tv;                                                // 変数の宣言
+  gettimeofday(&tv, NULL);                                          // 現在の時刻を取得
+  srand((unsigned int)tv.tv_sec * ((unsigned int)tv.tv_usec + 1));  // 秒×μ秒 + 1
+  // srand(2);  // テストのためseed固定
   // srand((int)time(NULL));
   int sample_t1 = rand() % dmax;
   int sample_t2 = rand() % dmax;
@@ -79,15 +79,15 @@ int main(int argc, char *argv[]) {
 
   /*残っている要素のリストとスライディングウインドウに含まれている数のヒストグラムの作成*/
 
-  vector<vector<contents>> Minlist(num_of_hash);  //残っている要素のリスト[ハッシュ関数][残ってる要素]
+  vector<vector<contents>> Minlist(num_of_hash);  // 残っている要素のリスト[ハッシュ関数][残ってる要素]
   vector<int> histgram(vm);                       // histgramは個数のみを持つ
   vector<std::array<int, 2>> ar(vm, {-1, -1});    // 固定長で試してみる
 
   vector<int> reset_count(num_of_hash, 0);
 
-  int In;  //データストリームに入ってくる一番新しい要素
+  int In;  // データストリームに入ってくる一番新しい要素
 
-  //最小値
+  // 最小値
   struct contents a;
   a.label = 99999;
   a.value = 5000000;
@@ -96,16 +96,16 @@ int main(int argc, char *argv[]) {
   int same_count = 0;
   int another_count = 0;
   int out_count = 0;
-  //ここから時刻による更新
+  // ここから時刻による更新
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
 
   vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm, 0));
   int tmp_pointer;
-  clock_t start = clock();  //ここから時間を測る
+  clock_t start = clock();  // ここから時間を測る
 
   while (t < dmax) {
-    //出ていく処理
+    // 出ていく処理
     if (t >= w) {
       int out = database[t - w];
       histgram[out]--;
@@ -127,26 +127,26 @@ int main(int argc, char *argv[]) {
           out_count++;
         }
         if (out == min_elem[l].label) {
-          //最小値と同じラベルがストリームデータから出ていく時
+          // 最小値と同じラベルがストリームデータから出ていく時
           int min = 5000000;
           int m_label;
           for (int m = 0; m < Minlist[l].size(); m++) {
             int Minlist_value = Minlist[l][m].value;
 
             if (min > Minlist_value) {
-              //最小値を調べる
+              // 最小値を調べる
               int label = Minlist[l][m].label;
               // 近似になっちゃうと正しいvalueが取得できなさそう
               int value_check = fx[l][label][allocation_pointer[l][label]].value;
 
               if (Minlist_value == value_check) {
-                //割り当て値に間違いがない場合
+                // 割り当て値に間違いがない場合
                 min = Minlist_value;
                 m_label = label;
               } else {
                 Minlist[l][m].value = value_check;
                 if (min > value_check) {
-                  //割り当て値が間違っている場合
+                  // 割り当て値が間違っている場合
                   min = value_check;
                   m_label = label;
                 }
@@ -160,9 +160,9 @@ int main(int argc, char *argv[]) {
       time_ave_length = sum_length / (double)num_of_hash;
       sum_time_ave_length += time_ave_length;
     }
-    //入っていく処理////////////////
+    // 入っていく処理////////////////
     In = database[t];
-    histgram[In]++;  //とりあえず先に入れておく方針
+    histgram[In]++;  // とりあえず先に入れておく方針
 
 #ifdef DEBUG
     if ((sample_t1 <= t) && (t < (sample_t1 + w))) {
@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
       if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity == histgram[In]) {
         allocation_pointer[l][In] += 1;
       }
-      int in_value = fx[l][In][allocation_pointer[l][In]].value;  //現在入ってきた要素の値
+      int in_value = fx[l][In][allocation_pointer[l][In]].value;  // 現在入ってきた要素の値
 
 #ifdef DEBUG
       // あらかじめサンプリングしたtのスライドウィンドゥの値をつくる
@@ -206,13 +206,13 @@ int main(int argc, char *argv[]) {
       while (m >= 0) {
         // Minlistのスキャン
         if (Minlist[l][m].label == In) {
-          //同じラベルのを消す
+          // 同じラベルのを消す
           Minlist[l].erase(Minlist[l].begin() + m);
           same_count++;
         } else {
           // back_IN_num=1のして初期化して、むだなwhileを省く
           while (Minlist[l][m].time < hist_time) {
-            //時刻によって判断
+            // 時刻によって判断
             back_IN_num++;
             if (fx[l][In][tmp_pointer].multiplicity < back_IN_num) {
               tmp_pointer += 1;
@@ -233,7 +233,7 @@ int main(int argc, char *argv[]) {
             }
           }
           if (Minlist[l][m].value >= delete_val) {
-            //値を比べる
+            // 値を比べる
             Minlist[l].erase(Minlist[l].begin() + m);
             another_count++;
           }
@@ -246,7 +246,7 @@ int main(int argc, char *argv[]) {
       Minlist[l].push_back(a);
 
       if (min_elem[l].value > in_value) {
-        //最小値の更新
+        // 最小値の更新
         min_elem[l].value = in_value;
         min_elem[l].label = In;
       }
@@ -260,7 +260,7 @@ int main(int argc, char *argv[]) {
   cout << ave_length << "\n";
 
   cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
-  clock_t end = clock();  //ここまで時間測定
+  clock_t end = clock();  // ここまで時間測定
   cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
   struct rusage resource;
   getrusage(RUSAGE_SELF, &resource);

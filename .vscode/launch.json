@@ -7,10 +7,11 @@
       "program": "${fileDirname}/${fileBasenameNoExtension}",
       "args": [
         "zipf_database.txt",
-        100,
-        "Minhash_cws.txt",
-        100,
-        2
+        "zipf_database2.txt",
+        "100",
+        "Minhash.txt",
+        "100",
+        "2"
       ],
       "stopAtEntry": false,
       "cwd": "${fileDirname}",

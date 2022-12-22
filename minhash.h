@@ -7,6 +7,9 @@
 #include <sstream>
 #include <vector>
 
+#include "count_min_sketch.cpp"
+#include "histgram.cpp"
+
 /*Minhash読み込み*/
 std::vector<std::vector<int>> readminhash(char *filename) {
   int i = 0;
@@ -51,21 +54,6 @@ int hashvalue(std::vector<int> &hash, std::vector<int> &data) {
   return value;
 }
 
-/*
-struct rank
-{
-        int id;
-        int sim;
-        bool operator<(const rank& rhs) const
-        {
-                return sim > rhs.sim;
-        }
-        };*/
-// jac.hとほぼ同じ。
-// simがintになっているのは、
-//ハッシュの衝突回数で類似度
-//を近似してるから
-
 // 厳密なJaccard係数の算出
 double strict_jaccard(std::vector<int> &set_a, std::vector<int> &set_b) {
   std::vector<int> intersection_in;
@@ -86,7 +74,7 @@ double strict_jaccard(std::vector<int> &set_a, std::vector<int> &set_b) {
 int mh(std::vector<int> &s, std::vector<std::vector<int>> &fx) {
   int vm = fx.size();
   std::vector<int> histgram(vm, 0);
-  int min = 999999;
+  int min = numeric_limits<int>::max();
   int min_s_i;
 
   for (int i = 0; i < s.size(); i++) {
@@ -104,7 +92,7 @@ int mh(std::vector<int> &s, std::vector<std::vector<int>> &fx) {
 int cws_mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) {
   int vm = fx_a.size();
   std::vector<int> histgram(vm, 0);
-  int min = 999999;
+  int min = numeric_limits<int>::max();
   int min_s_i;
 
   for (int i = 0; i < s.size(); i++) {
@@ -122,7 +110,7 @@ int cws_mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) 
 int active_index_mh(std::vector<int> &s, std::vector<std::vector<index>> &fx) {
   int vm = fx.size();
   std::vector<int> histgram(vm, 0);
-  int min = 999999;
+  int min = numeric_limits<int>::max();
   int min_s_i;
   std::vector<int> pointer(vm, 0);
 
@@ -142,13 +130,36 @@ int active_index_mh(std::vector<int> &s, std::vector<std::vector<index>> &fx) {
   return min_s_i;
 }
 
+// count-minの組み合わせの近似Jaccard係数の算出
+int count_min_mh(std::vector<int> &stream_data, std::vector<std::vector<int>> &fx, int &c1, int &c2) {
+  CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
+  // Histgram *frequency_object = new Histgram(100);
+  int min_allocation_num = numeric_limits<int>::max();
+  int min_s_i;
+  int frequency;
+  int in_value;
+
+  for (int i = 0; i < stream_data.size(); i++) {
+    int in = stream_data[i];
+    update(frequency_object, in, 1);
+    frequency = get_freq(frequency_object, in);
+
+    in_value = fx[in][frequency];
+    if (in_value < min_allocation_num) {
+      min_allocation_num = in_value;
+      min_s_i = stream_data[i];
+    }
+  }
+  return min_s_i;
+}
+
 std::vector<std::vector<std::vector<index>>> active_index(int &num_of_hash, int &vm, int &multi, std::vector<std::vector<int>> &minhash) {
   std::vector<std::vector<std::vector<index>>> fx(num_of_hash, std::vector<std::vector<index>>(vm, std::vector<index>()));
   for (int l = 0; l < num_of_hash; l++) {
     for (int i = 0; i < vm; i++) {
       int before_value = numeric_limits<int>::max();
       for (int s = 1; s <= multi; s++) {
-        int Allocation_s = minhash[l][i + (vm * (s - 1))];  //アルファベットに対してs番目の割り当て値
+        int Allocation_s = minhash[l][i + (vm * (s - 1))];  // アルファベットに対してs番目の割り当て値
         if (!(Allocation_s > before_value)) {
           struct index idx;
           idx.multiplicity = s;
@@ -167,7 +178,7 @@ std::vector<std::vector<index>> line_of_active_index(int &vm, int &multi, std::v
   for (int i = 0; i < vm; i++) {
     int before_value = numeric_limits<int>::max();
     for (int s = 1; s <= multi; s++) {
-      int Allocation_s = minhash[i + (vm * (s - 1))];  //アルファベットに対してs番目の割り当て値
+      int Allocation_s = minhash[i + (vm * (s - 1))];  // アルファベットに対してs番目の割り当て値
       if (!(Allocation_s > before_value)) {
         struct index idx;
         idx.multiplicity = s;
