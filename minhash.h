@@ -133,7 +133,7 @@ int active_index_mh(std::vector<int> &s, std::vector<std::vector<index>> &fx) {
 // count-minの組み合わせの近似Jaccard係数の算出
 int count_min_mh(std::vector<int> &stream_data, std::vector<std::vector<int>> &fx, int &c1, int &c2) {
   CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
-  // Histgram *frequency_object = new Histgram(100);
+  // Histgram *frequency_object = new Histgram(stream_data.size());
   int min_allocation_num = numeric_limits<int>::max();
   int min_s_i;
   int frequency;

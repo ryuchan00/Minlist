@@ -277,8 +277,8 @@ int main(int argc, char *argv[]) {
   // 厳密なJaccard係数を求める
   cout << "厳密なjaccard係数: " << strict_jaccard(in_t1, in_t2) << endl;
 
-  int c1 = 8;
-  int c2 = 8;
+  int c1 = 4;
+  int c2 = 2;
   // 近似Jaccard係数をハッシュ関数の数だけ求めてみる
   match_count = 0.0;
 
