@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 i=1
 times=10
-c1=8
-c2=32
+c1=4
+c2=20
 
 # echo "繰り返し回数: ${times}"
 echo "近似jaccard係数,厳密なjaccard係数,Count-Minのjaccard係数"

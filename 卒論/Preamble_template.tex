@@ -1,0 +1,121 @@
+% !TEX root = main.tex
+% おまじない:上の一文を足すことで，分割したどのtexからもコンパイル可能となる
+%% Sotsuron_preamble
+\usepackage{indentfirst}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{afterpage} % 図が章をまたがない
+\usepackage{here}
+\usepackage{url}
+\usepackage{seqsplit} % 長い単語の改行
+\usepackage{comment}
+
+\usepackage[dvipdfmx]{hyperref} %目次リンク
+\usepackage{pxjahyper} %目次リンク
+
+\usepackage[dvipdfmx]{color}
+%\usepackage{listings, jlisting}
+
+\usepackage{amsmath}
+\usepackage{algorithm, algpseudocode}
+\usepackage{listings}
+
+\usepackage{enumerate}
+
+\usepackage{otf}
+
+
+\usepackage{theorem}
+
+
+
+\usepackage{url}
+\newtheorem{theo}{定理}
+\newtheorem{defi}{定義}
+\newtheorem{lemm}{補題}
+\newtheorem{proof}{証明}
+\lstset{
+	language=C++,
+	classoffset=0,% 環境0
+	basicstyle=\ttfamily\scriptsize,
+	%commentstyle=\textit,
+	commentstyle = {\itshape \color[cmyk]{1,0.4,1,0}},
+	%keywordstyle=\bfseries,
+	keywordstyle = {\bfseries \color{magenta}},%int,ifなどのスタイル
+	stringstyle = {\ttfamily \color{blue}},% string ""で囲まれたやつのスタイル
+	frame=tRBl,
+	framesep=5pt,%frameまでの間隔(行番号とプログラムの間)
+	showstringspaces=false,
+	numbers=left,%行番号の位置
+	stepnumber=1,%行番号の間隔
+	numberstyle=\tiny,%行番号の書体
+	tabsize=2,
+	breaklines=true,%行が長くなった場合の改行
+	morecomment=[l][\color{magenta}]{\#},%comment追加
+	% starting new class
+	classoffset=1,% 環境1
+	otherkeywords={.,!,=,+,-,>,<},
+	morekeywords={.,!,=,+,-,>,<},
+	keywordstyle=\color{red},
+	sensitive  = true,
+	%classoffset=2,
+	%otherkeywords={->},
+	%alsodigit={-},
+	%morekeywords={->},
+	%keywordstyle=\color{magenta},
+	classoffset=2,
+	morekeywords={%keywordの追加
+		uint32_t, uint64_t, uint16_t%
+	},
+	keywordstyle=\color{blue}
+}
+
+\makeatletter
+\newenvironment{breakablealgorithm}
+  {% \begin{breakablealgorithm}
+   \begin{center}
+     \refstepcounter{algorithm}% New algorithm
+     \hrule height.8pt depth0pt \kern2pt% \@fs@pre for \@fs@ruled
+     \renewcommand{\caption}[2][\relax]{% Make a new \caption
+       {\raggedright\textbf{\ALG@name~\thealgorithm} ##2\par}%
+       \ifx\relax##1\relax % #1 is \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
+       \else % #1 is not \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}%
+       \fi
+       \kern2pt\hrule\kern2pt
+     }
+  }{% \end{breakablealgorithm}
+     \kern2pt\hrule\relax% \@fs@post for \@fs@ruled
+   \end{center}
+  }
+\makeatother
+
+
+% remove end sentences
+\algtext*{EndWhile}
+\algtext*{EndIf}
+\algtext*{EndFor}
+\algtext*{EndLoop}
+
+% renew symbol
+\algrenewcommand\algorithmicrequire{\textbf{Input:}}
+\algrenewcommand\algorithmicensure{\textbf{Outout:}}
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\Break}{\textbf{break}}
+%\usepackage{geometry}
+
+\usepackage{wuse_thesis}
+
+\bibliographystyle{junsrt}
+%\bibliographystyle{junsrtquotationmarks} % junsrt 引用順で表示
+
+\title{動的なテキスト集合に対する類似検索\\アルゴリズムALE-Qの評価}  %タイトル
+
+\author{土田 祐将}  %名前
+\bachelar
+\department{\ajRoman{1}}   %学科
+\course{コンピュータサイエンス}   %プログラム
+\studentid{1810430}    %学籍番号
+\teacher{古賀 久志 准教授}  %指導教員
+\gyear{令和3}
+\date{令和4年1月31日}

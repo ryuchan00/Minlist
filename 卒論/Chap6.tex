@@ -1,0 +1,126 @@
+遅延評価法ではマッチング判定を行う際，クエリとデータベースにおいて共通する単語が１つもない場合でも，テキスト類似度を求めている．共通する単語が存在しない状況においてはテキスト類似度は0となり，マッチング判定対象に含める必要がない．よって，転置インデクスを用いて共通する単語が存在するテキストを抽出し，そのテキスト集合のみにマッチング判定処理を行うアルゴリズムを提案する．
+
+\section{転置インデクスの管理}
+\begin{comment}
+静的なテキスト集合に対する転置インデクスは一度構築すれば更新する必要はない．しかし，本研究では動的なテキスト集合を扱うため，動的なテキスト集合に適した転置インデクスの構築・更新が必要になる．そのため，転置インデクスのデータ構造を以下の通りとする．
+\begin{itemize}
+    %\item 転置インデクスを単語をキーとしたハッシュテーブルを用いて表し，参照される先はキーとなる単語を含むテキストのIDを格納するキューを指す．
+    \item 転置インデクスをハッシュテーブルとし，それぞれの単語にテキストIDを含むキューを対応させる．
+    \item 新しいテキストが到着したとき，ハッシュテーブルを参照し，新しいテキストに含まれるすべての単語に対応するキューの先頭にテキスト情報を追加する．
+    \item 最も古いテキストを除外するとき，ハッシュテーブルを参照し，古いテキストに含まれるすべての単語に対応するキューの末尾のテキスト情報を削除する．
+\end{itemize}
+\par
+ひとつのテキスト内にある単語が複数含まれている時，その単語の個数分キューにテキストIDを追加するのではなく，テキストを識別するためのテキストIDとその単語の個数をもつデータをキューに格納することとし，このデータをテキスト情報とする．
+\end{comment}
+
+第\ref{chap:ii}章に従い，毎時刻テキストが到着し，スライディングウィンドウの内容が変化する度に転置インデクスを更新する．
+%パターン１であればクエリに，パターン２であればデータベース上のすべてのユーザに転置インデクスを構築する必要がある．
+
+\section{マッチング方向}
+マッチング処理には以下で示す２つのパターンが存在する．
+\begin{description}
+    %\item \textbf{パターン１}　データベース上のユーザのテキストがクエリユーザのどのテキストとマッチングするかの判定を行う(図\ref{fig:lazy}における$\mbox{OUT}_V$に対する処理，$\mbox{IN}_U$に対する処理)
+    \item \textbf{パターン１} $U_T$内のテキスト$o \in U_T$を起点とするマッチング判定(図\ref{fig:lazy}における$\mbox{OUT}_V$に対する処理，$\mbox{IN}_U$に対する処理)
+    %\item \textbf{パターン２} クエリユーザのテキストがデータベース上のユーザのどのテキストとマッチングするかの判定を行う(図\ref{fig:lazy}における最新の$V_{UM}$の頂点のマッチング判定)
+    \item \textbf{パターン２} $V_T$内のテキスト$o \in V_T$を起点とするマッチング判定(図\ref{fig:lazy}における最新の$V_{UM}$の頂点のマッチング判定)
+\end{description}
+
+\subsection{LE-Q}
+遅延評価法のパターン１の部分に対して転置インデクスを用いたマッチング判定を取り入れたアルゴリズムをLE-Q(Lazy Evaluation with inverted indices for Query)として提案する．このアルゴリズムを用いる場合，クエリ１人分のスライディングウィンドウに対する転置インデクスを管理する必要がある．LE-Qの$\mbox{OUT}_V$に対する処理，$\mbox{IN}_U$に対する処理における疑似コードをAlgorithm \ref{alg:LE-Q-1}, Algorithm \ref{alg:LE-Q-2}に示す．
+
+\begin{algorithm}[H]
+    \caption{LE-Q : $\mbox{OUT}_V$に対する処理}
+    \label{alg:LE-Q-1}
+    \begin{algorithmic}[1]
+    \State $\mbox{OUT}_V$をスライディングウィンドウから離脱させる
+    \If {$\mbox{OUT}_V\in V_{M}$}
+        \State $O_U\leftarrow Pair(\mbox{OUT}_V)$
+        \State $h \leftarrow PriorityQueue()$
+        \For {$o \in O_U$}
+            \State $h.add(InvertedIndexQuery[o])$
+        \EndFor
+        \While {$not\;h.empty()$}
+            \State $O_V \leftarrow h.get()$
+            \State $h.add(O_Vを格納する転置インデクスのリスト内の次のテキスト)$
+            \If {$O_V \in V_{UM}$}
+                \If {($jac(O_V,O_U)\geq \epsilon_{doc}$)}
+                    \State $O_V$と$O_U$がマッチング
+                    \State break
+                \EndIf
+            \EndIf
+        \EndWhile
+    \EndIf
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+    \caption{LE-Q : $\mbox{IN}_U$に対する処理}
+    \label{alg:LE-Q-2}
+    \begin{algorithmic}[1]
+    \State $h \leftarrow PriorityQueue()$
+    \For {$o \in \mbox{IN}_U$}
+        \State $h.add(InvertedIndexQuery[o])$
+    \EndFor
+    \While {$not\;h.empty()$}
+        \State $O_V \leftarrow h.get()$
+        \State $h.add(O_Vを格納する転置インデクスのリスト内の次のテキスト)$
+        \If {$O_V \in V_{UM}$}
+            \If {($jac(O_V,\mbox{IN}_U)\geq \epsilon_{doc}$)}
+                \State $O_V$と$\mbox{IN}_U$がマッチング
+                \State break
+            \EndIf
+        \EndIf
+    \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+
+\subsection{LE-QD}
+遅延評価法のパターン１，パターン２の部分に対して転置インデクスを用いたマッチング判定を取り入れたアルゴリズムをLE-QD(Lazy Evaluation with inverted indices for Query and Database)として提案する．このアルゴリズムを用いる場合，クエリ１人分に加えデータベース上のユーザ全員のスライディングウィンドウに対する転置インデクスを管理する必要がある．LE-QDの$\mbox{OUT}_V$に対する処理，$\mbox{IN}_U$に対する処理はAlgorithm \ref{alg:LE-Q-1}，Algorithm \ref{alg:LE-Q-2}と同様である．
+図\ref{fig:lazy}における最新の$V_{UM}$の頂点のマッチング判定における疑似コードをAlgorithm \ref{alg:LE-QD-3}に示す．
+
+\begin{algorithm}[H]
+    \caption{LE-QD : 最新の$V_{UM}$の頂点のマッチング判定}
+    \label{alg:LE-QD-3}
+    \begin{algorithmic}[1]
+    \While {$|V_M| < \epsilon$ AND $|V_{NM}| \leq (w-\epsilon)$}
+    \State $O_V \leftarrow V_{UM} $の一番新しいテキスト
+      
+    \State $h \leftarrow PriorityQueue()$
+    \For {$o \in O_V$}
+        \State $h.add(InvertedIndexDatabase[o])$
+    \EndFor
+    \While {$not\;h.empty()$}
+        \State $O_U \leftarrow h.get()$
+        \State $h.add(O_Uを格納する転置インデクスのリスト内の次のテキスト)$
+        \If {$O_U \in U_{UM}$}
+            \If {($jac(O_V,O_U)\geq \epsilon_{doc}$)}
+                \State $O_V$と$O_U$がマッチング
+                \State break
+            \EndIf
+        \EndIf
+    \EndWhile
+      
+    \If{$O_V$がどの$U_{UM}$ともマッチングしない}
+      \State $O_V\in V_{NM}$とする
+    \EndIf
+  \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+
+\section{マッチング判定方法}
+
+マッチング判定を行う対象は新しいテキストから優先してマッチングすることが優位であることが遅延評価法で示されている．キューには到着した順に先頭からテキスト情報を格納しているため，マッチング判定は先頭からDAAT方式で参照していく．
+判定の処理に関しては，どちらのパターンにおいても共通の処理を行い，そのマッチング判定方法を以下に示す．
+\begin{enumerate}
+    \item 調べるもとのテキスト$u_T$のそれぞれの単語$\{t_1, t_1, \cdots, t_{|u_T|}\}$に対応するリストを転置インデクスを用いて取得する．
+    \item DAAT方式に則って取得したリストを先頭から新しいテキスト優先で並列に走査していく．
+    \item 参照したテキストが
+    \begin{itemize}
+        \item パターン1では$V_{UM}$
+        \item パターン2では$U_{UM}$
+    \end{itemize}
+    に含まれていれば以下の処理を行う．
+    \item 同一IDをもつテキストごとに共通する単語がいくつ存在するかを数える．
+    \item 異なるテキストIDが登場する，または最後のテキストを参照したときに，式(\ref{match})を用いてテキスト類似度を計算する．
+    \item 式(\ref{match})の値が$\epsilon_{doc}$以上であればマッチング，そうでなければ非マッチングとする．
+\end{enumerate}

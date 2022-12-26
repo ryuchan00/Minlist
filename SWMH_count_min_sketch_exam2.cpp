@@ -137,6 +137,8 @@ int main(int argc, char *argv[]) {
           out_count++;
         }
         if (out == min_elem[l].label) {
+          // 説明が難しい
+          // 削除された要素が最小値に関係がないか
           for (int m = 0; m < Minlist[l].size(); m++) {
             // COUNT-MINにより不連続になってしまった頻度のため，Minlistの補正作業を行う
             if (Minlist[l][m].value < fx[l][out][allocation_pointer[l][out]].value) {

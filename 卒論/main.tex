@@ -1,0 +1,45 @@
+%Sotsuron_main
+\documentclass[platex, 12pt]{jreport}
+%%
+\input{Preamble_template.tex}
+\begin{document}
+
+% TITLE
+\input{Chap1.tex}
+
+\chapter{序論}
+\input{Chap2.tex}
+
+\chapter{問題設定}
+\input{Chap3.tex}
+
+\chapter{従来手法}
+\input{Chap4.tex}
+
+\chapter{転置インデクス}
+\input{Chap5.tex}
+
+\chapter{提案手法}
+\input{Chap6.tex}
+
+\chapter{LE-Qの改善案}
+\input{Chap7.tex}
+
+\chapter{実験}
+\input{Chap8.tex}
+
+\chapter{結論}
+\input{Chap9.tex}
+
+\input{ChapAcknow.tex} %acknowledgements
+
+
+%======参考文献======
+ %\nocite{*} % 文献ぜんぶ載せるやつ
+\bibliography{ref}
+%\bibliographystyle{junsrt}
+
+%\input{thebibliography_template.tex}%参考文献
+%======付録=========
+%\input{ChapAppendix.tex}
+\end{document}
