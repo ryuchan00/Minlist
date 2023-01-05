@@ -92,6 +92,15 @@ int main(int argc, char *argv[]) {
 
   vector<vector<contents>> Minlist(num_of_hash);  // 残っている要素のリスト[ハッシュ関数][残ってる要素]
   vector<int> histgram(vm);                       // histgramは個数のみを持つ
+  printf("size of (vector *)   : %ld\n", sizeof(vector<int>));
+  printf("size of int       : %ld\n", sizeof(int));
+
+  printf("size of (int *)   : %ld\n", sizeof(int *));
+
+  printf("size of double    : %ld\n", sizeof(double));
+
+  printf("size of (double *): %ld\n", sizeof(double *));
+
   // vector<deque<int>> t_histgram(vm);              //要素数0,初期値0
   // const int t_histgram_limit = 2;                 // ヒストグラムの限界数
   vector<std::array<int, 2>> ar(vm, {-1, -1});  // 固定長で試してみる
