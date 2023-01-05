@@ -1,0 +1,95 @@
+\documentclass[a4paper,12pt,oneside,openany,dvipdfmx,report]{jsbook}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{float}
+%\usepackage{latexsym}
+%\usepackage{txfonts}
+\usepackage[fleqn]{amsmath}
+\usepackage{amsthm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+
+\pagestyle{plain}
+\usepackage{here}
+\usepackage[top=30truemm,bottom=30truemm,left=30truemm,right=30truemm]{geometry}
+\title{\huge　時間と共に変化する多重集合に対するmin-hashの高速計算}
+\author{2031136 三原 寛寿\\ 指導教員 古賀 久志 准教授\\  副指導教員  戸田 貴之}
+\date{2022年1月28日}
+
+\renewcommand{\baselinestretch}{1.2}
+\makeatletter % プリアンブルで定義開始
+
+% 表示文字列を"図"から"Figure"へ
+%\renewcommand{\figurename}{Figure}
+
+% 図番号を"<章番号>.<図番号>" へ
+%t\renewcommand{\thefigure}{\thesection.\arabic{figure}}
+
+% 章が進むごとに図番号をリセットする
+%\@addtoreset{figure}{section}
+
+\makeatother % プリアンブルで定義終了
+
+
+\begin{document}
+\maketitle
+\large
+\tableofcontents
+\clearpage
+
+\maketitle
+
+
+\include{syuron_preface}
+\include{syuron_preparation}
+\include{syuron_relation}
+\include{syuron_algorithm}
+\include{syuron_algorithm2}
+\include{syuron_experient}
+\include{syuron_conclution}
+
+
+\vspace{2em}
+
+\begin{thebibliography}{99}
+  \bibitem{Datar}
+ Mayur Datar and S Muthukrishnan "Estimating Rarity and Similarity over Data Stream Window" AT\&T Research, Florham Park NJ, USA.
+
+  \bibitem{Xu2016}
+  X, Xu,C. Gao, J. Pei, K.Wang, and A. Al-Barakati,"Continuous similarity search for evolving queries," Knowledge and Information Systems, vol.48(3),pp.649-678, September 2016.
+
+\bibitem{HistoSketch}
+Yang D, Li B, Rettig L, Cudre-Mauroux P. "HistoSketch : fast similarity  preserving sketching of streaming histograms with concept drift", 2017 IEEE international conference on data mining (ICDM); 2017. p. 545-54.
+        
+\bibitem{Maxloghash}
+Wang P, Qi Y, Zhang Y, Zhai Q, Wang C, Lui J, Guan X. "A Memory-Efficient Sketch Method for Estimating High Similarities in Streaming Sets",  2019.
+
+\bibitem{b-bit}
+Ping Li, Arnd Christian Konig, "b-Bit Minwise Hashing", 2010 Nineteenth International World Wide Web Conference (WWW 2010).
+
+\bibitem{dataset2}
+Michael M, Rasmus P, Ninh, "Efficient Estimation for High Similarities using Odd Sketches" , In WWW, pages 109-118, 2014.
+
+\bibitem{microbiome}
+W PM Rowe, A Paola Carrieri, C Alcon-Giner, S Caim, A Shaw, K Sim, J Kroll, L j.Hall, E O.Pyzer-Knapp, M D.Winn, "Streaming histogram sketching for rapid microbiome analytics" Rowe et al.Microbiome 2019.
+
+\bibitem{POI}
+D. Yang, B. Li, and P. Cudre-Mauroux, “Poisketch: Semantic place labeling over user activity streams,” in Proc. of IJCAI, 2016, pp. 2697-2703.
+
+\bibitem{Bury}
+M Bury, C Schwiegelshohn, M Sorella, "Efficient Similarity Search in Dynamic Data Streams", 2021.
+
+\bibitem{Minhash}
+A Z Broder, M Charikar, A M Frieze, M Mitzenmacher, "Min-Wise Independent Permutations",Journal of Computer and System Sciences Volume 60, Issue 3, June 2000, Pages 630-659.
+
+
+\bibitem{CWS}
+M Manasse, F McSherry, K Talwar, "Consistent weighted sampling", 2010.
+
+\end{thebibliography}
+
+
+\end{document}

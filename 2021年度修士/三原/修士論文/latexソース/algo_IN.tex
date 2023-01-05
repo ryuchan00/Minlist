@@ -1,0 +1,33 @@
+\documentclass{IEEEtran}
+\usepackage{algorithm,algorithmic}
+\begin{document} 
+  \begin{algorithm}
+ \caption{要素$e_{t+1}$がウインドウに入る処理}
+ \begin{algorithmic}[1]
+ \renewcommand{\algorithmicrequire}{\textbf{Input:}}
+ \renewcommand{\algorithmicensure}{\textbf{Output:}}
+ \REQUIRE 要素$e_{t+1}$, 時刻tのMinlist
+ \ENSURE  時刻t+1のMinlist
+
+ \FOR {$0\le i \le Minlist$.size()$-1$}
+  \IF {$l(e_i)$==$l(e_{t+1})$}
+  \STATE Minlist[i]から$e_i$を削除
+  \ENDIF
+   \STATE $n$ : $e_i$より後ろにある$l(e_{t+1})$の数
+    \IF {$\pi(l(e_{t+1})_{n}) < \pi(e_i)$}
+  \STATE Minlist[i]から$e_i$を削除
+  \ENDIF
+ \ENDFOR
+ 
+ \STATE Minlistに$e_{t+1}$を加える
+ 
+ \IF {π$(e_{t+1})$が最小値}
+ \STATE 最小値をπ$(e_{t+1})$に更新
+ \ENDIF
+ 
+ \end{algorithmic} 
+ \end{algorithm}
+ 
+  
+
+\end{document}

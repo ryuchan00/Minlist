@@ -1,0 +1,126 @@
+\documentclass{IEEEtran}
+\usepackage{algorithm,algorithmic}
+\begin{document}
+ \begin{algorithm}
+ \caption{スライディングウインドウの要素離脱}
+ \begin{algorithmic}[1]
+ \renewcommand{\algorithmicrequire}{\textbf{Input:}}
+ \renewcommand{\algorithmicensure}{\textbf{Output:}}
+ \REQUIRE 時刻$t$のスライディングウインドウ$W$, 出ていくアルファベット$x$, 時刻$t$の最小値の候補リストMinlist
+ \ENSURE  時刻$t+1$の$W$に新しく入ってくるアルファベット$y_m$が入っていない状態
+ 
+ \STATE $n$ : $W$の中の$x$の数
+ 
+ \IF {$n=1$}
+  \IF { π$(x_1)$が最小値 }
+  \STATE 最小値を更新
+  \ENDIF
+  \IF { π$(x_1)$がMinlistに存在}
+  \STATE Minlistから$x$を削除
+  \ENDIF
+ \ENDIF 
+ 
+ \IF {$n>=2$}
+  \IF { π$(x_n)$がMinlistに存在 }
+  \STATE π$(x_n)$をπ$(x_{n-1})$に更新
+  \ENDIF
+  \IF {π$(x_n)$が最小値}
+  \STATE 最小値を更新
+  \ENDIF
+ \ENDIF 
+ 
+ \end{algorithmic} 
+ \end{algorithm}
+
+ \begin{algorithm}
+ \caption{スライディングウインドウに要素を入れる}
+ \begin{algorithmic}[2]
+ \renewcommand{\algorithmicrequire}{\textbf{Input:}}
+ \renewcommand{\algorithmicensure}{\textbf{Output:}}
+ \REQUIRE 時刻$t$のスライディングウインドウ$W$, 入ってくるアルファベット$y$, 時刻$t$の最小値の候補リストMinlist
+ \ENSURE  時刻$t+1$のスライディングウインドウ$W$
+ \STATE $m$ : $W$の中の$y$の数
+ \FOR {$0\le i \le Minlist$.size()$-1$}
+  \IF {Minlist[i]のアルファベット==$y$}
+  \STATE Minlist[i]を削除
+  \ENDIF
+  
+    \IF {π$(y_1)$よりMinlistの$i$番目が大きい}
+  \STATE Minlist[i]を削除
+  \ENDIF
+ \ENDFOR
+ 
+ \STATE Minlistにπ$(y_m)$を加える
+ 
+ \IF {π$(y_m)$が最小値}
+ \STATE 最小値をπ$(y_m)$に更新
+ \ENDIF
+ 
+ \end{algorithmic} 
+ \end{algorithm}
+ 
+ \begin{algorithm}
+ \caption{スライディングウインドウに要素を入れる}
+ \begin{algorithmic}[3]
+ \renewcommand{\algorithmicrequire}{\textbf{Input:}}
+ \renewcommand{\algorithmicensure}{\textbf{Output:}}
+ \REQUIRE IBMで作成したデータ$A$
+ \ENSURE  データストリーム$S$
+ \STATE x=301
+ \FOR {$S$の長さ$<t+W$}
+      \STATE $l=$rand()$\%1000$
+      \FOR{$j=0$;$j<A[l]$.size();$j++$}
+           \STATE スライディングウインドウ$dt$の中の数$whist[A[l][j]]+1$
+           
+           \IF  { $dt$.size()>$W$}
+                \STATE $whist[dt[0]]-1$;
+                \STATE $dt$.erase($dt$.begin())
+           \ENDIF
+           
+           \IF {$whist[A[l]]$が上限値を超えている}
+                 \STATE $whist[A[l]]-1$
+                  \STATE $x$+1
+                  \STATE dtにxを加える
+                 \STATE $S$にA[l]を加える
+           \ENDIF
+           
+           \IF {$whist[A[l]]$が上限値を超えていない}
+              \STATE dtにA[l]を加える
+              \STATE $S$にA[l]を加える
+           \ENDIF
+      \ENDFOR
+\ENDFOR
+ 
+ \end{algorithmic} 
+ \end{algorithm}
+ 
+  \begin{algorithm}
+ \caption{要素$e_{t+1}$がウインドウに入る処理}
+ \begin{algorithmic}[1]
+ \renewcommand{\algorithmicrequire}{\textbf{Input:}}
+ \renewcommand{\algorithmicensure}{\textbf{Output:}}
+ \REQUIRE 要素$e_{t+1}$, 時刻tのMinlist
+ \ENSURE  時刻t+1のMinlist
+
+ \FOR {$0\le i \le Minlist$.size()$-1$}
+  \IF {$l(e_i)$==$l(e_{t+1})$}
+  \STATE Minlist[i]から$e_i$を削除
+  \ENDIF
+   \STATE $n$ : $e_i$より後ろにある$l(e_{t+1})$の数
+    \IF {$\pi(l(e_{t+1})_{n}) < \pi(e_i)$}
+  \STATE Minlist[i]から$e_i$を削除
+  \ENDIF
+ \ENDFOR
+ 
+ \STATE Minlistに$e_{t+1}$を加える
+ 
+ \IF {π$(e_{t+1})$が最小値}
+ \STATE 最小値をπ$(e_{t+1})$に更新
+ \ENDIF
+ 
+ \end{algorithmic} 
+ \end{algorithm}
+ 
+  
+
+\end{document}
