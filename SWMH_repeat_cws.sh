@@ -12,4 +12,4 @@ while [ $i -le $times ]; do
     ./SWMH_cws zipf_database.txt 100 Minhash_cws.txt 100 2 | tail -3 | head -2
     echo "*--------------------------------------------------*"
     i=$(($i + 1))
-done
+don

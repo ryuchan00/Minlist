@@ -1,6 +1,7 @@
 // 配列を持つデータ構造array(2)を試してみる
 //
 /*Min Hashベースのマルチセットの近似解法*/
+/*Active Indexを実装したもの*/
 
 /*
  先行研究論文
@@ -82,20 +83,8 @@ int main(int argc, char *argv[]) {
   ////////////////////////////////////////////////////////////////
   /*Min-hashに用いるランダムの値のテーブル*/
 
-  vector<vector<vector<int>>> fx(num_of_hash, vector<vector<int>>(vm, vector<int>(multi + 1, 5000000)));
-
-  for (int l = 0; l < num_of_hash; l++) {
-    for (int i = 0; i < vm; i++) {
-      for (int s = 1; s <= multi; s++) {
-        int Allocation_s = minhash[l][i + (vm * (s - 1))];  // アルファベットに対してs番目の割り当て値
-        if (Allocation_s > fx[l][i][s - 1]) {
-          fx[l][i][s] = fx[l][i][s - 1];
-        } else {
-          fx[l][i][s] = Allocation_s;
-        }
-      }
-    }
-  }
+  vector<vector<vector<index>>> fx(num_of_hash);
+  fx = active_index(num_of_hash, vm, multi, minhash);
 
   ////////////////////////////////////////////////////////////////
 
@@ -103,10 +92,7 @@ int main(int argc, char *argv[]) {
 
   vector<vector<contents>> Minlist(num_of_hash);  // 残っている要素のリスト[ハッシュ関数][残ってる要素]
   vector<int> histgram(vm);                       // histgramは個数のみを持つ
-  // vector<deque<int>> t_histgram(vm);              //要素数0,初期値0
-  // const int t_histgram_limit = 2;                 // ヒストグラムの限界数
-  vector<std::array<int, 2>> ar(vm, {-1, -1});  // 固定長で試してみる
-  // vector<vector> でも固定長を定義できる
+  vector<std::array<int, 2>> ar(vm, {-1, -1});    // 固定長で試してみる
 
   vector<int> reset_count(num_of_hash, 0);
 
@@ -124,6 +110,9 @@ int main(int argc, char *argv[]) {
   // ここから時刻による更新
 
   double ave_length, time_ave_length, sum_time_ave_length = 0.0;
+
+  vector<vector<int>> allocation_pointer(num_of_hash, vector<int>(vm, 0));
+  int tmp_pointer;
 #ifdef OUT
   clock_t start = clock();  // ここから時間を測る
 #endif
@@ -142,6 +131,12 @@ int main(int argc, char *argv[]) {
       }
       double sum_length = 0;
       for (int l = 0; l < num_of_hash; l++) {
+        if (fx[l][out][allocation_pointer[l][out]].multiplicity > histgram[out]) {
+          allocation_pointer[l][out] -= 1;
+          if (allocation_pointer[l][out] < 0) {
+            allocation_pointer[l][out] = 0;
+          }
+        }
         sum_length += Minlist[l].size();
         if (Minlist[l][0].time == t - w) {
           Minlist[l].erase(Minlist[l].begin());
@@ -157,7 +152,8 @@ int main(int argc, char *argv[]) {
             if (min > Minlist_value) {
               // 最小値を調べる
               int label = Minlist[l][m].label;
-              int value_check = fx[l][label][histgram[label]];
+              // 近似になっちゃうと正しいvalueが取得できなさそう
+              int value_check = fx[l][label][allocation_pointer[l][label]].value;
 
               if (Minlist_value == value_check) {
                 // 割り当て値に間違いがない場合
@@ -203,7 +199,11 @@ int main(int argc, char *argv[]) {
 #endif
 
     for (int l = 0; l < num_of_hash; l++) {
-      int in_value = fx[l][In][histgram[In]];  // 現在入ってきた要素の値
+      // allocation_pointerの次の要素が存在しているか確認している
+      if (allocation_pointer[l][In] + 1 < fx[l][In].size() && fx[l][In][allocation_pointer[l][In] + 1].multiplicity == histgram[In]) {
+        allocation_pointer[l][In] += 1;
+      }
+      int in_value = fx[l][In][allocation_pointer[l][In]].value;  // 現在入ってきた要素の値
 
 #ifdef DEBUG
       // あらかじめサンプリングしたtのスライドウィンドゥの値をつくる
@@ -220,6 +220,7 @@ int main(int argc, char *argv[]) {
       int m = Minlist[l].size() - 1;
 
       int back_IN_num = 0;  // 後方にあるhist_max_labelの要素数
+      tmp_pointer = 0;      // delete_val算出のためのpointer
       int pointer = 0;
       // 実はarは要素を1つしか持っていなくても成立する？
       // ar[In]の要素数はsearch_limit-1なのではないか？
@@ -238,7 +239,10 @@ int main(int argc, char *argv[]) {
           while (Minlist[l][m].time < hist_time) {
             // 時刻によって判断
             back_IN_num++;
-            delete_val = fx[l][In][back_IN_num];
+            if (fx[l][In][tmp_pointer].multiplicity < back_IN_num) {
+              tmp_pointer += 1;
+            }
+            delete_val = fx[l][In][tmp_pointer].value;
 
             // back_IN_num=2のとき、hist_timeの更新はこれ以上必要ない。
             if (back_IN_num >= search_limit) {
@@ -294,7 +298,7 @@ int main(int argc, char *argv[]) {
   double match_count = 0.0;
 
   for (int i = 0; i < num_of_hash; i++) {
-    if (mh(in_t1, fx[i]) == mh(in_t2, fx[i])) {
+    if (active_index_mh(in_t1, fx[i]) == active_index_mh(in_t2, fx[i])) {
       match_count += 1;
     }
   }
@@ -302,18 +306,6 @@ int main(int argc, char *argv[]) {
 
   // 厳密なJaccard係数を求める
   cout << "厳密なjaccard係数: " << strict_jaccard(in_t1, in_t2) << endl;
-
-  int c1 = 4;
-  int c2 = 2;
-  // 近似Jaccard係数をハッシュ関数の数だけ求めてみる
-  match_count = 0.0;
-
-  for (int i = 0; i < num_of_hash; i++) {
-    if (count_min_mh(in_t1, fx[i], c1, c2) == count_min_mh(in_t2, fx[i], c1, c2)) {
-      match_count += 1;
-    }
-  }
-  cout << "count-minのjaccard係数: " << match_count / num_of_hash << endl;
 #endif
 
   return 0;

@@ -13,4 +13,3 @@ while [ $i -le $times ]; do
     ./SWMH_exam zipf_database.txt 100 Minhash.txt 100 ${i}
     i=$(($i + 1))
 done
-# printf "%.10f\n" $(echo "scale=10; $sum / $times" | bc)
