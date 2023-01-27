@@ -1,6 +1,7 @@
 /*Min Hashベースのマルチセットの近似解法*/
 /*
   予備実験用
+  search limitのグラフを作る
 */
 
 /*
@@ -20,7 +21,7 @@
 
 //#define DEBUG
 
-#define PERIOD (1000)
+#define PERIOD (100)
 using namespace std;
 
 int main(int argc, char* argv[]) {
@@ -68,6 +69,7 @@ int main(int argc, char* argv[]) {
   /*残っている要素のリストとスライディングウインドウに含まれている数のヒストグラムの作成*/
 
   vector<vector<contents> > Minlist(num_of_hash);  //残っている要素のリスト[ハッシュ関数][残ってる要素]
+  cout << Minlist[0].size() << ",";
   vector<deque<int> > histgram(vm);                //要素数0,初期値0
 
   vector<int> reset_count(num_of_hash, 0);
@@ -183,7 +185,7 @@ int main(int argc, char* argv[]) {
       a.value = in_value;
       Minlist[l].push_back(a);
       if (l == 0) {
-        cout << Minlist[l].size() << ",";
+        cout << Minlist[0].size() << ",";
       }
 
       if (min_elem[l].value > in_value) {  //最小値の更新

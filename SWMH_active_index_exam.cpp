@@ -28,6 +28,7 @@
 
 // #define DEBUG
 // #define OUT
+#define AI
 
 #define PERIOD (100000)
 using namespace std;
@@ -85,6 +86,21 @@ int main(int argc, char *argv[]) {
 
   vector<vector<vector<index>>> fx(num_of_hash);
   fx = active_index(num_of_hash, vm, multi, minhash);
+
+#ifdef AI
+  double allocation_table_element_num = 0.0;
+  double total = 0.0;
+  for (int l = 0; l < num_of_hash; l++) {
+    for (int i = 0; i < vm; i++) {
+      allocation_table_element_num += fx[l][i].size();
+      // for (int j = 0; j < fx[l][i].size(); j++) {
+      //   cout << fx[l][i].size() << endl;
+      // }
+    }
+    cout << allocation_table_element_num / vm << endl;
+    allocation_table_element_num = 0.0;
+  }
+#endif
 
   ////////////////////////////////////////////////////////////////
 

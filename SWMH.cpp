@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
   vector<int> database;                  //データベース
   char* dbname = argv[1];                // database.txt
   database = readdatabase_line(dbname);  //データベース作成
-  cout << database.size() << endl;
+  // cout << database.size() << endl;
 
   /*パラメータ*/
   int w = atoi(argv[2]);  //ウインドウサイズ
@@ -203,12 +203,12 @@ int main(int argc, char* argv[]) {
   }
 
   ave_length = sum_time_ave_length / t;
-  cout << ave_length << "\n";
+  // cout << ave_length << "\n";
 
-  cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
+  // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   // cout<<"\n";
   clock_t end = clock();  //ここまで時間測定
-  cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  // cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
   return 0;
 }
 

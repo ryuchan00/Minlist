@@ -1,5 +1,5 @@
 // 配列を持つデータ構造array(2)を試してみる
-//
+
 /*Min Hashベースのマルチセットの近似解法*/
 
 /*
@@ -25,8 +25,8 @@
 #include "kyotsu.h"
 #include "minhash.h"
 
-// #define DEBUG
-// #define OUT
+#define DEBUG
+#define OUT
 
 #define PERIOD (100000)
 using namespace std;
@@ -51,6 +51,7 @@ int main(int argc, char *argv[]) {
   /*パラメータ*/
   int w = atoi(argv[2]);  // ウインドウサイズ
   int dmax = PERIOD + w;  // ストリームデータの長さ
+  // int dmax = 3000;  // ストリームデータの長さ
 
   vector<vector<int>> minhash;
   vector<int>::iterator it;
@@ -279,6 +280,7 @@ int main(int argc, char *argv[]) {
   }
 
   ave_length = sum_time_ave_length / t;
+  // cout << t << endl;
 #ifdef OUT
   cout << ave_length << "\n";
 

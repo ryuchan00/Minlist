@@ -1,3 +1,5 @@
+// #include "count_min_sketch.hpp"
+
 #include <algorithm>
 #include <iostream>
 #include <limits>
@@ -97,8 +99,7 @@ int get_freq(CountMinSketch *CountMinSketch, int j) {
   return CountMinSketch->get_freq(j);
 }
 
-void 
-update(CountMinSketch *CountMinSketch, int j, int value) {
+void update(CountMinSketch *CountMinSketch, int j, int value) {
   CountMinSketch->update(j, value);
 }
 

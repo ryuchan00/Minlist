@@ -9,10 +9,11 @@
 #include <array>
 
 #include "contents.h"
+// #include "count_min_sketch.cpp"
 #include "kyotsu.h"
 #include "minhash.h"
 
-// #define DEBUG
+#define DEBUG
 #define STREAM_DATA
 #define PERIOD (100000)
 using namespace std;
@@ -20,16 +21,27 @@ using namespace std;
 int main(int argc, char *argv[]) {
   int t = 0;
 
-  vector<int> database;                  // データベース
-  char *dbname = argv[1];                // database.txt
-  database = readdatabase_line(dbname);  // データベース作成
-
-  vector<int> database2;                   // 近似を計測するための別のデータベース
-  char *dbname2 = argv[2];                 // database.txt
-  database2 = readdatabase_line(dbname2);  // データベース作成
-
   /*パラメータ*/
   int w = atoi(argv[3]);  // ウインドウサイズ
+
+  vector<int> database_raw;                  // データベース
+  char *dbname = argv[1];                    // database.txt
+  database_raw = readdatabase_line(dbname);  // データベース作成
+  vector<int> database{database_raw.begin(), database_raw.begin() + w};
+  std::sort(database.begin(), database.end(), std::greater<int>());
+#ifdef DEBUG
+  cout << database.size() << endl;
+#endif
+
+  vector<int> database2_raw;                   // 近似を計測するための別のデータベース
+  char *dbname2 = argv[2];                     // database.txt
+  database2_raw = readdatabase_line(dbname2);  // データベース作成
+  vector<int> database2{database2_raw.begin(), database2_raw.begin() + w};
+  std::sort(database2.begin(), database2.end(), std::greater<int>());
+
+#ifdef DEBUG
+  cout << database2.size() << endl;
+#endif
 
   vector<vector<int>> minhash;
 
@@ -39,6 +51,12 @@ int main(int argc, char *argv[]) {
   int multi = atoi(argv[5]);           // wの中の要素の数の上限
   int vm = minhash[0].size() - multi;  // 要素の種類数
   int vmw = vm * multi;                // 要素種類数 × 多重度の数
+
+  #ifdef DEBUG
+    for (int i = 0; i < 100; i++) {
+      cout << database[i] << " " << database2[i] << endl;
+    }
+  #endif
 
   vector<vector<vector<int>>> fx(num_of_hash, vector<vector<int>>(vm, vector<int>(multi + 1, numeric_limits<int>::max())));
 
@@ -55,8 +73,8 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  int c1 = 100;
-  int c2 = 100;
+  int c1 = atoi(argv[6]);
+  int c2 = atoi(argv[7]);
   // 近似Jaccard係数をハッシュ関数の数だけ求めてみる
   double match_count = 0.0;
   double match_count2 = 0.0;
@@ -69,8 +87,8 @@ int main(int argc, char *argv[]) {
       match_count2 += 1;
     }
   }
-  cout << "近似jaccard係数: " << match_count / num_of_hash << endl;
-  cout << "近似jaccard係数: " << match_count2 / num_of_hash << endl;
+  cout << "CountMinSketchを用いた近似jaccard係数: " << match_count / num_of_hash << endl;
+  cout << "MinHashを用いた近似jaccard係数: " << match_count2 / num_of_hash << endl;
 
   // 厳密なJaccard係数を求める
   cout << "厳密なjaccard係数: " << strict_jaccard(database, database2) << endl;

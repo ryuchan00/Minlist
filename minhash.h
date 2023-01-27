@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <random>
 #include <set>
 #include <sstream>
@@ -9,6 +10,9 @@
 
 #include "count_min_sketch.cpp"
 #include "histgram.cpp"
+// #include "count_min_sketch.cpp"
+// #include "histgram.cpp"
+// #include "count_min_sketch.hpp"
 
 /*Minhash読み込み*/
 std::vector<std::vector<int>> readminhash(char *filename) {
@@ -74,7 +78,7 @@ double strict_jaccard(std::vector<int> &set_a, std::vector<int> &set_b) {
 int mh(std::vector<int> &s, std::vector<std::vector<int>> &fx) {
   int vm = fx.size();
   std::vector<int> histgram(vm, 0);
-  int min = numeric_limits<int>::max();
+  int min = std::numeric_limits<int>::max();
   int min_s_i;
 
   for (int i = 0; i < s.size(); i++) {
@@ -92,7 +96,7 @@ int mh(std::vector<int> &s, std::vector<std::vector<int>> &fx) {
 int cws_mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) {
   int vm = fx_a.size();
   std::vector<int> histgram(vm, 0);
-  int min = numeric_limits<int>::max();
+  int min = std::numeric_limits<int>::max();
   int min_s_i;
 
   for (int i = 0; i < s.size(); i++) {
@@ -110,7 +114,7 @@ int cws_mh(std::vector<int> &s, std::vector<int> &fx_a, std::vector<int> &fx_b) 
 int active_index_mh(std::vector<int> &s, std::vector<std::vector<index>> &fx) {
   int vm = fx.size();
   std::vector<int> histgram(vm, 0);
-  int min = numeric_limits<int>::max();
+  int min = std::numeric_limits<int>::max();
   int min_s_i;
   std::vector<int> pointer(vm, 0);
 
@@ -134,7 +138,7 @@ int active_index_mh(std::vector<int> &s, std::vector<std::vector<index>> &fx) {
 int count_min_mh(std::vector<int> &stream_data, std::vector<std::vector<int>> &fx, int &c1, int &c2) {
   CountMinSketch *frequency_object = new CountMinSketch(c1, c2);
   // Histgram *frequency_object = new Histgram(stream_data.size());
-  int min_allocation_num = numeric_limits<int>::max();
+  int min_allocation_num = std::numeric_limits<int>::max();
   int min_s_i;
   int frequency;
   int in_value;
@@ -157,7 +161,7 @@ std::vector<std::vector<std::vector<index>>> active_index(int &num_of_hash, int 
   std::vector<std::vector<std::vector<index>>> fx(num_of_hash, std::vector<std::vector<index>>(vm, std::vector<index>()));
   for (int l = 0; l < num_of_hash; l++) {
     for (int i = 0; i < vm; i++) {
-      int before_value = numeric_limits<int>::max();
+      int before_value = std::numeric_limits<int>::max();
       for (int s = 1; s <= multi; s++) {
         int Allocation_s = minhash[l][i + (vm * (s - 1))];  // アルファベットに対してs番目の割り当て値
         if (!(Allocation_s > before_value)) {
@@ -176,7 +180,7 @@ std::vector<std::vector<std::vector<index>>> active_index(int &num_of_hash, int 
 std::vector<std::vector<index>> line_of_active_index(int &vm, int &multi, std::vector<int> &minhash) {
   std::vector<std::vector<index>> fx(std::vector<std::vector<index>>(vm, std::vector<index>()));
   for (int i = 0; i < vm; i++) {
-    int before_value = numeric_limits<int>::max();
+    int before_value = std::numeric_limits<int>::max();
     for (int s = 1; s <= multi; s++) {
       int Allocation_s = minhash[i + (vm * (s - 1))];  // アルファベットに対してs番目の割り当て値
       if (!(Allocation_s > before_value)) {
