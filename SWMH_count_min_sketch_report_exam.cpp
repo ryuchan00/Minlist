@@ -23,8 +23,8 @@
 #include <array>
 
 #include "contents.h"
-#include "count_min_sketch.cpp"
-#include "histgram.cpp"
+// #include "count_min_sketch.cpp"
+// #include "histgram.cpp"
 #include "kyotsu.h"
 #include "minhash.h"
 
@@ -275,7 +275,7 @@ int main(int argc, char *argv[]) {
 
   // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  // ここまで時間測定
-  // cout << (double)(end - start) / CLOCKS_PER_SEC << " sec" << endl;
+  // cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
   // struct rusage resource;
   // getrusage(RUSAGE_SELF, &resource);
   // printf("memory: %ld\n", resource.ru_maxrss);

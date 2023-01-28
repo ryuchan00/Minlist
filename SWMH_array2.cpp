@@ -25,7 +25,7 @@
 #include "kyotsu.h"
 #include "minhash.h"
 
-#define DEBUG
+// #define DEBUG
 #define OUT
 
 #define PERIOD (100000)
@@ -282,14 +282,14 @@ int main(int argc, char *argv[]) {
   ave_length = sum_time_ave_length / t;
   // cout << t << endl;
 #ifdef OUT
-  cout << ave_length << "\n";
+  // cout << ave_length << "\n";
 
-  cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
+  // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  // ここまで時間測定
   cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
-  struct rusage resource;
-  getrusage(RUSAGE_SELF, &resource);
-  printf("memory: %ld\n", resource.ru_maxrss);
+  // struct rusage resource;
+  // getrusage(RUSAGE_SELF, &resource);
+  // printf("memory: %ld\n", resource.ru_maxrss);
 #endif
 #ifdef DEBUG
   // 近似Jaccard係数をハッシュ関数の数だけ求めてみる
@@ -300,22 +300,31 @@ int main(int argc, char *argv[]) {
       match_count += 1;
     }
   }
-  cout << "近似jaccard係数: " << match_count / num_of_hash << endl;
+  // cout << "近似jaccard係数: " << match_count / num_of_hash << endl;
 
   // 厳密なJaccard係数を求める
-  cout << "厳密なjaccard係数: " << strict_jaccard(in_t1, in_t2) << endl;
+  // cout << "厳密なjaccard係数: " << strict_jaccard(in_t1, in_t2) << endl;
+  // 厳密,近似,count-min
+  cout << strict_jaccard(in_t1, in_t2) << "," << match_count / num_of_hash << ",";
 
-  int c1 = 4;
-  int c2 = 2;
+  int c2 = atoi(argv[6]);
   // 近似Jaccard係数をハッシュ関数の数だけ求めてみる
-  match_count = 0.0;
+  double count_min_match_count = 0.0;
+  vector<int> c1s = {2, 3, 4, 6, 8, 16, 32, 64, 128};
 
-  for (int i = 0; i < num_of_hash; i++) {
-    if (count_min_mh(in_t1, fx[i], c1, c2) == count_min_mh(in_t2, fx[i], c1, c2)) {
-      match_count += 1;
+  for (int j = 0; j < c1s.size(); j++) {
+    count_min_match_count = 0.0;
+    for (int i = 0; i < num_of_hash; i++) {
+      if (count_min_mh(in_t1, fx[i], c1s[j], c2) == count_min_mh(in_t2, fx[i], c1s[j], c2)) {
+        count_min_match_count += 1;
+      }
     }
+    cout << count_min_match_count / num_of_hash << ",";
   }
-  cout << "count-minのjaccard係数: " << match_count / num_of_hash << endl;
+  cout << endl;
+
+  // cout << "count-minのjaccard係数: " << match_count / num_of_hash << endl;
+
 #endif
 
   return 0;

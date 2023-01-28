@@ -27,8 +27,8 @@
 #include "minhash.h"
 
 // #define DEBUG
-// #define OUT
-#define AI
+#define OUT
+// #define AI
 
 #define PERIOD (100000)
 using namespace std;
@@ -300,14 +300,14 @@ int main(int argc, char *argv[]) {
 
   ave_length = sum_time_ave_length / t;
 #ifdef OUT
-  cout << ave_length << "\n";
+  // cout << ave_length << "\n";
 
-  cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
+  // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  // ここまで時間測定
   cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
-  struct rusage resource;
-  getrusage(RUSAGE_SELF, &resource);
-  printf("memory: %ld\n", resource.ru_maxrss);
+  // struct rusage resource;
+  // getrusage(RUSAGE_SELF, &resource);
+  // printf("memory: %ld\n", resource.ru_maxrss);
 #endif
 #ifdef DEBUG
   // 近似Jaccard係数をハッシュ関数の数だけ求めてみる

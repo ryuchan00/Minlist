@@ -208,7 +208,7 @@ int main(int argc, char* argv[]) {
   // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   // cout<<"\n";
   clock_t end = clock();  //ここまで時間測定
-  // cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
+  cout << (double)(end - start) / CLOCKS_PER_SEC << endl;
   return 0;
 }
 

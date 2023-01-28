@@ -265,10 +265,10 @@ int main(int argc, char *argv[]) {
 
   // cout << "same= " << same_count << " anohter= " << another_count << " out= " << out_count << "\n";
   clock_t end = clock();  // ここまで時間測定
-  // cout << (double)(end - start) / CLOCKS_PER_SEC << " sec" << endl;
+  cout << (double)(end - start) / CLOCKS_PER_SEC << " sec" << endl;
   struct rusage resource;
-  getrusage(RUSAGE_SELF, &resource);
+  // getrusage(RUSAGE_SELF, &resource);
   // printf("memory: %ld\n", resource.ru_maxrss);
-  printf("%ld\n", resource.ru_maxrss);
+  // printf("%ld\n", resource.ru_maxrss);
   return 0;
 }
