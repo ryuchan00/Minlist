@@ -1,0 +1,36 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces スライディングウィンドウモデル}}{3}{figure.2.1}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces 多重集合のハッシュ値表}}{7}{figure.2.2}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces 多重集合のハッシュ値計算}}{8}{figure.2.3}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces 遅延評価法の処理の流れ}}{11}{figure.3.1}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces 転置インデクスの構成}}{15}{figure.4.1}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces TAATの手順}}{16}{figure.4.2}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces DAATの手順}}{17}{figure.4.3}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7.1}{\ignorespaces 性能評価(人工データセット($p=0.96^{(i-1)}$))}}{26}{figure.7.1}%
+\contentsline {figure}{\numberline {7.2}{\ignorespaces 性能評価(CoPhIRデータセット)}}{26}{figure.7.2}%
+\contentsline {figure}{\numberline {7.3}{\ignorespaces 性能評価(人工データセット($p=0.1$))}}{27}{figure.7.3}%
+\contentsline {figure}{\numberline {7.4}{\ignorespaces 性能評価(人工データセット($p=0.3$))}}{27}{figure.7.4}%
+\contentsline {figure}{\numberline {7.5}{\ignorespaces 性能評価(人工データセット($p=0.5$))}}{27}{figure.7.5}%
+\contentsline {figure}{\numberline {7.6}{\ignorespaces 性能評価(人工データセット($p=0.7$))}}{28}{figure.7.6}%
+\contentsline {figure}{\numberline {7.7}{\ignorespaces 性能評価(人工データセット($p=0.9$))}}{28}{figure.7.7}%
+\contentsline {figure}{\numberline {7.8}{\ignorespaces LE-Qのマッチング順序の優位性評価(人工データセット($p=0.96^{(i-1)}$))}}{29}{figure.7.8}%
+\contentsline {figure}{\numberline {7.9}{\ignorespaces LE-Qのマッチング順序の優位性評価(CoPhIRデータセット)}}{29}{figure.7.9}%
+\contentsline {figure}{\numberline {7.10}{\ignorespaces LE-Qのマッチング順序の優位性評価(人工データセット($p=0.1$))}}{30}{figure.7.10}%
+\contentsline {figure}{\numberline {7.11}{\ignorespaces LE-Qのマッチング順序の優位性評価(人工データセット($p=0.3$))}}{30}{figure.7.11}%
+\contentsline {figure}{\numberline {7.12}{\ignorespaces LE-Qのマッチング順序の優位性評価(人工データセット($p=0.5$))}}{30}{figure.7.12}%
+\contentsline {figure}{\numberline {7.13}{\ignorespaces LE-Qのマッチング順序の優位性評価(人工データセット($p=0.7$))}}{31}{figure.7.13}%
+\contentsline {figure}{\numberline {7.14}{\ignorespaces LE-Qのマッチング順序の優位性評価(人工データセット($p=0.9$))}}{31}{figure.7.14}%
+\contentsline {figure}{\numberline {7.15}{\ignorespaces ALE-Qの性能比較(人工データセット($p=0.96^{(i-1)}$))}}{32}{figure.7.15}%
+\contentsline {figure}{\numberline {7.16}{\ignorespaces ALE-Qの性能比較(CoPhIRデータセット)}}{32}{figure.7.16}%
+\contentsline {figure}{\numberline {7.17}{\ignorespaces ALE-Qの性能比較(人工データセット($p=0.1$))}}{33}{figure.7.17}%
+\contentsline {figure}{\numberline {7.18}{\ignorespaces ALE-Qの性能比較(人工データセット($p=0.3$))}}{33}{figure.7.18}%
+\contentsline {figure}{\numberline {7.19}{\ignorespaces ALE-Qの性能比較(人工データセット($p=0.5$))}}{33}{figure.7.19}%
+\contentsline {figure}{\numberline {7.20}{\ignorespaces ALE-Qの性能比較(人工データセット($p=0.7$))}}{34}{figure.7.20}%
+\contentsline {figure}{\numberline {7.21}{\ignorespaces ALE-Qの性能比較(人工データセット($p=0.9$))}}{34}{figure.7.21}%
+\addvspace {10\p@ }

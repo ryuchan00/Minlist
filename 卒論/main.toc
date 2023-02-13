@@ -1,0 +1,37 @@
+\contentsline {chapter}{\numberline {第1章}序論}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}まえがき}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}本論文の構成}{2}{section.1.2}%
+\contentsline {chapter}{\numberline {第2章}問題設定}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}CTS問題}{3}{section.2.1}%
+\contentsline {section}{\numberline {2.2}近似レンジ探索}{4}{section.2.2}%
+\contentsline {section}{\numberline {2.3}ユーザ間類似度}{4}{section.2.3}%
+\contentsline {section}{\numberline {2.4}多重集合}{5}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Jaccard係数}{5}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Min-hash}{6}{section.2.6}%
+\contentsline {section}{\numberline {2.7}スライディングウインドウモデル}{8}{section.2.7}%
+\contentsline {chapter}{\numberline {第3章}従来手法}{10}{chapter.3}%
+\contentsline {section}{\numberline {3.1}$\mbox {IN}_{V}$に対する処理}{11}{section.3.1}%
+\contentsline {section}{\numberline {3.2}$\mbox {OUT}_V$に対する処理}{12}{section.3.2}%
+\contentsline {section}{\numberline {3.3}$\mbox {IN}_U$に対する処理}{12}{section.3.3}%
+\contentsline {section}{\numberline {3.4}$\mbox {OUT}_U$に対する処理}{12}{section.3.4}%
+\contentsline {section}{\numberline {3.5}類似・非類似の判定処理}{12}{section.3.5}%
+\contentsline {section}{\numberline {3.6}マッチング判定を行うペアの順番}{13}{section.3.6}%
+\contentsline {chapter}{\numberline {第4章}転置インデクス}{14}{chapter.4}%
+\contentsline {section}{\numberline {4.1}データ構造}{14}{section.4.1}%
+\contentsline {section}{\numberline {4.2}構築}{14}{section.4.2}%
+\contentsline {section}{\numberline {4.3}利用}{15}{section.4.3}%
+\contentsline {chapter}{\numberline {第5章}提案手法}{18}{chapter.5}%
+\contentsline {section}{\numberline {5.1}転置インデクスの管理}{18}{section.5.1}%
+\contentsline {section}{\numberline {5.2}マッチング方向}{18}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}LE-Q}{18}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}LE-QD}{19}{subsection.5.2.2}%
+\contentsline {section}{\numberline {5.3}マッチング判定方法}{19}{section.5.3}%
+\contentsline {chapter}{\numberline {第6章}LE-Qの改善案}{21}{chapter.6}%
+\contentsline {chapter}{\numberline {第7章}実験}{23}{chapter.7}%
+\contentsline {section}{\numberline {7.1}人工データセット}{23}{section.7.1}%
+\contentsline {section}{\numberline {7.2}CoPhIRデータセット}{24}{section.7.2}%
+\contentsline {section}{\numberline {7.3}転置インデクスの性能評価}{25}{section.7.3}%
+\contentsline {section}{\numberline {7.4}マッチング順序の評価}{28}{section.7.4}%
+\contentsline {section}{\numberline {7.5}ALE-Qの評価}{31}{section.7.5}%
+\contentsline {chapter}{\numberline {第8章}結論}{35}{chapter.8}%
+\contentsline {chapter}{謝辞}{36}{section*.3}%
